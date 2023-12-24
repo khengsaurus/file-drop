@@ -1,0 +1,1 @@
+LOCAL=true go run main.go

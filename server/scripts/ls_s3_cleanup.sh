@@ -1,0 +1,1 @@
+awslocal s3 rm --recursive s3://file-drop-1 && awslocal s3api delete-bucket --bucket file-drop-1
