@@ -26,8 +26,8 @@ func InitS3Client() *S3Client {
 		awsSession, err = session.NewSession(
 			&aws.Config{
 				Region:           aws.String(os.Getenv("AWS_REGION")),
-				Endpoint:         aws.String(os.Getenv("AWS_URI_C")),
-				Credentials:      credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_C"), os.Getenv("AWS_SECRET_KEY_C"), ""),
+				Endpoint:         aws.String(os.Getenv("AWS_URI_DEV")),
+				Credentials:      credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_DEV"), os.Getenv("AWS_SECRET_KEY_DEV"), ""),
 				S3ForcePathStyle: aws.Bool(true),
 			})
 	} else {

@@ -14,5 +14,4 @@ var (
 	RedisKeyPrefix = "FD1"
 	RedisValDelim  = "___"
 	RedisTTL       = 24 * time.Hour
-	// RedisTTL       = 5 * time.Minute
 )

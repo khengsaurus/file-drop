@@ -14,11 +14,13 @@ var RestRouter = func(restApi chi.Router) {
 	restApi.Route("/file", func(fileApi chi.Router) {
 		fileApi.Post("/", GetSignedPutUrl)
 		fileApi.Get("/{file_key}", GetSignedGetUrl)
-		// fileApi.Delete("/{file_key}", DeleteFile)
 	})
 	restApi.Route("/record", func(recordApi chi.Router) {
 		recordApi.Post("/", CreateRecord)
 		recordApi.Get("/{file_key}", GetRecord)
+	})
+	restApi.Route("/resource", func(recordApi chi.Router) {
+		recordApi.Get("/{file_key}", ViewResource)
 	})
 }
 
