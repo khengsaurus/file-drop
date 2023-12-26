@@ -2,14 +2,14 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
-)
+	"strings"
 
-type GeneratedPage struct {
-	Title string
-	Src   string
-}
+	"github.com/khengsaurus/file-drop/server/consts"
+	"github.com/khengsaurus/file-drop/server/types"
+)
 
 func Json200(payload any, w http.ResponseWriter) {
 	res, _ := json.Marshal(payload)
@@ -29,7 +29,38 @@ func WriteImageHTML(title string, src string, w http.ResponseWriter) error {
 		return err
 	}
 
-	page := GeneratedPage{Title: title, Src: src}
+	page := types.HtmlPageImg{Title: title, Src: src}
 
 	return tmpl.Execute(w, page)
+}
+
+func GetResourceValue(fileName, fileKey, fileUrl string) string {
+	return fmt.Sprintf(
+		"%s%s%s%s%s",
+		fileName,
+		consts.RedisValDelim,
+		fileKey,
+		consts.RedisValDelim,
+		fileUrl,
+	)
+}
+
+func GetResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
+	fileName := ""
+	fileKey := ""
+	url := ""
+
+	if strings.Count(resourceVal, consts.RedisValDelim) >= 2 {
+		// resourceVal is in the format name___key___url
+		lastIndex := strings.LastIndex(resourceVal, consts.RedisValDelim)
+		url = resourceVal[lastIndex+len(consts.RedisValDelim):]
+		resourceVal = resourceVal[:lastIndex] // now name___key
+		lastIndex = strings.LastIndex(resourceVal, consts.RedisValDelim)
+		fileKey = resourceVal[lastIndex+len(consts.RedisValDelim):]
+		fileName = resourceVal[:lastIndex]
+	} else {
+		return nil, fmt.Errorf("faield to parse resource information")
+	}
+
+	return &types.ResourceInfo{FileName: fileName, Key: fileKey, Url: url}, nil
 }

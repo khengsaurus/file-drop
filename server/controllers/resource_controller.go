@@ -31,31 +31,26 @@ func ViewResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nameAndGetUrl := redisClient.GetRedisValue(ctx, key)
-	lastIndex := strings.LastIndex(nameAndGetUrl, consts.RedisValDelim)
-	fileName := ""
-	url := ""
+	resourceVal := redisClient.GetRedisValue(ctx, key)
+	resourceInfo, err := utils.GetResourceInfo(resourceVal)
 
-	if lastIndex != -1 {
-		fileName = nameAndGetUrl[:lastIndex]
-		url = nameAndGetUrl[lastIndex+len(consts.RedisValDelim):]
-	} else {
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	extension := filepath.Ext(fileName)
+	extension := filepath.Ext(resourceInfo.FileName)
 	switch strings.ToLower(extension) {
 	case ".img", ".jpeg", ".jpg", ".png", ".svg":
-		err = utils.WriteImageHTML(fileName, url, w)
+		err = utils.WriteImageHTML(resourceInfo.FileName, resourceInfo.Url, w)
 	case ".json", ".text", ".txt", ".html":
-		http.Redirect(w, r, url, http.StatusFound)
+		http.Redirect(w, r, resourceInfo.Url, http.StatusFound)
 	default:
-		clientBaseUrl := os.Getenv("CLIENT_URL")
+		clientBaseUrl := os.Getenv("CLIENT_FILE_URL")
 		if consts.Local {
-			clientBaseUrl = os.Getenv("CLIENT_URL_DEV")
+			clientBaseUrl = os.Getenv("CLIENT_FILE_URL_DEV")
 		}
-		clientUrl := fmt.Sprintf("%s/file/%s", clientBaseUrl, key)
+		clientUrl := fmt.Sprintf("%s/%s", clientBaseUrl, key)
 		http.Redirect(w, r, clientUrl, http.StatusFound)
 	}
 

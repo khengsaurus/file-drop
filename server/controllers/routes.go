@@ -4,23 +4,14 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type Payload struct {
-	FileName string `json:"fileName"`
-	Key      string `json:"key"`
-	Url      string `json:"url"`
-}
-
 var RestRouter = func(restApi chi.Router) {
-	restApi.Route("/file", func(fileApi chi.Router) {
-		fileApi.Post("/", GetSignedPutUrl)
-		fileApi.Get("/{file_key}", GetSignedGetUrl)
+	restApi.Route("/object", func(api chi.Router) {
+		api.Post("/", GetSignedPutUrl)
+		api.Get("/{file_key}", GetSignedGetUrl)
 	})
-	restApi.Route("/record", func(recordApi chi.Router) {
-		recordApi.Post("/", CreateRecord)
-		recordApi.Get("/{file_key}", GetRecord)
-	})
-	restApi.Route("/resource", func(recordApi chi.Router) {
-		recordApi.Get("/{file_key}", ViewResource)
+	restApi.Route("/record", func(api chi.Router) {
+		api.Post("/", CreateRecord)
+		api.Get("/{file_key}", GetRecord)
 	})
 }
 

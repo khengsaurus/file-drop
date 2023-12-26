@@ -82,7 +82,20 @@ main {
 .drop-zone {
   height: 200px;
   width: clamp(400px, 40%, 800px);
-  border: 3px dashed transparent;
+  border: 3px dashed gray;
   border-radius: 4px;
   transition: 300ms;
+}
+
+.uploaded-list {
+  margin-top: 16px;
+  text-align: center;
+
+  ul {
+    list-style-type: none;
+  }
+
+  li {
+    margin-top: 6px;
+  }
 }

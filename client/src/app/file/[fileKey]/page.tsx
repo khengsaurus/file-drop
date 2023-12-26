@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { Button } from "@mui/material";
+import { saveAs } from "file-saver";
+import { useEffect, useState } from "react";
 import { get } from "../../utils";
 
 interface FilePageProps {
@@ -9,22 +11,31 @@ interface FilePageProps {
 
 export default function FilePage(props: FilePageProps) {
   const { params } = props;
+  const [file, setFile] = useState({ url: "", fileName: "" });
   const { fileKey } = params;
 
   useEffect(() => {
-    get("/api/record", { fileKey }).then(async (res) => {
-      const resData = await res.json();
-      console.log(resData);
-      return;
-    });
+    get("/api/record", { fileKey })
+      .then((res) => res.json())
+      .then(setFile)
+      .catch(console.error);
   }, [fileKey]);
+
+  function downloadFile() {
+    if (!file?.url) {
+      return;
+    }
+    fetch(file.url)
+      .then((res) => res.blob())
+      .then((blob) => saveAs(blob, file.fileName))
+      .catch(console.error);
+  }
 
   return (
     <main>
-      File
-      <br />
-      <br />
-      {fileKey}
+      <Button variant="outlined" onClick={downloadFile}>
+        Download {file?.fileName}
+      </Button>
     </main>
   );
 }

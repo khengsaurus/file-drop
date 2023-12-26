@@ -45,6 +45,23 @@ func InitS3Client() *S3Client {
 	return &S3Client{instance: s3.New(awsSession)}
 }
 
+func GetObject(ctx context.Context, key string) (*s3.GetObjectOutput, error) {
+	s3Client, ok := ctx.Value(consts.S3ClientKey).(*S3Client)
+	if !ok {
+		return nil, fmt.Errorf("couldn't find %s in request context", consts.S3ClientKey)
+	}
+
+	result, err := s3Client.instance.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(os.Getenv("AWS_BUCKET_NAME")),
+		Key:    aws.String(key)},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func GetSignedPutUrl(ctx context.Context, key string) (string, error) {
 	s3Client, ok := ctx.Value(consts.S3ClientKey).(*S3Client)
 	if !ok {

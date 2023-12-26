@@ -1,8 +1,12 @@
-export function get(url: string, params?: Record<string, any>) {
+export function get(
+  url: string,
+  params?: Record<string, any>,
+  headers?: Record<string, any>
+) {
   const urlWithParams = params ? `${url}?${new URLSearchParams(params)}` : url;
   return fetch(urlWithParams, {
     method: "GET",
-    headers: {
+    headers: headers || {
       Accept: "application/json",
       "Content-Type": "application/json",
     },

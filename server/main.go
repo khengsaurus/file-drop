@@ -16,9 +16,11 @@ import (
 )
 
 var (
-	route_api   = "/api"
-	route_admin = "/admin"
-	route_test  = "/test"
+	route_admin    = "/admin"
+	route_api      = "/api"
+	route_download = "/download"
+	route_file     = "/file"
+	route_test     = "/test"
 )
 
 func main() {
@@ -33,11 +35,17 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middlewares.EnableCors)
 	router.Use(ChiMiddleware.Timeout(30 * time.Second))
+	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
+	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
 	router.Route(route_api, func(restRouter chi.Router) {
-		restRouter.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
-		restRouter.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 		controllers.RestRouter(restRouter)
+	})
+	router.Route(route_file, func(api chi.Router) {
+		api.Get("/{file_key}", controllers.ViewResource)
+	})
+	router.Route(route_download, func(api chi.Router) {
+		api.Get("/{file_key}", controllers.StreamResource)
 	})
 
 	// Dev
