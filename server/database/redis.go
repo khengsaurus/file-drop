@@ -72,14 +72,14 @@ func (redisClient *RedisClient) GetRedisValue(
 	key string,
 ) string {
 	prefixedKey := fmt.Sprintf("%s_%s", consts.RedisKeyPrefix, key)
-	cacheValue, err := redisClient.instance.Get(ctx, prefixedKey).Result()
+	redisValue, err := redisClient.instance.Get(ctx, prefixedKey).Result()
 	if err == redis.Nil {
 		return ""
 	} else if err != nil {
 		fmt.Println(err)
 		return ""
 	} else {
-		return cacheValue
+		return redisValue
 	}
 }
 

@@ -1,9 +1,11 @@
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  /* --font-mono: Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
-    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace; */
 
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
@@ -82,7 +84,7 @@ main {
 .drop-zone {
   height: 200px;
   width: clamp(400px, 40%, 800px);
-  border: 3px dashed gray;
+  border: 3px dashed rgb(20, 75, 130);
   border-radius: 4px;
   transition: 300ms;
 }
@@ -98,4 +100,9 @@ main {
   li {
     margin-top: 6px;
   }
+}
+
+.small-text {
+  font-size: 14px;
+  margin-top: 8px;
 }

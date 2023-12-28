@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev_local": "DEV=1 yarn dev",
+    "dev_local": "DEV=1 SERVICE=local yarn dev",
+    "dev_remote": "DEV=1 SERVICE=remote yarn dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

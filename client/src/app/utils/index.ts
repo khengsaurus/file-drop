@@ -1,3 +1,5 @@
+import { maxFileSize } from "../consts";
+
 export function get(
   url: string,
   params?: Record<string, any>,
@@ -27,17 +29,15 @@ export function post(url: string, data = {}) {
 export function uploadFile(
   file: File,
   url: string,
-  isDev = false,
   abortSignal?: AbortController
 ) {
   return fetch(url, {
     method: "PUT",
-    headers: isDev
-      ? {
-          "Content-Type": "application/json",
-          "x-amz-acl": "public-read-write",
-        }
-      : { "Content-Type": "multipart/form-data" },
+    headers: {
+      "Content-Type": file.type,
+      "Content-Length": String(file.size),
+      "x-amz-acl": "public-read",
+    },
     body: file,
     signal: abortSignal?.signal,
   });

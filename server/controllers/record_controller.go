@@ -12,25 +12,16 @@ import (
 )
 
 func GetRecord(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GetRecord called")
 	key := chi.URLParam(r, "file_key")
-
+	fmt.Printf("-> GetRecord %s\n", key)
 	if key == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	ctx := r.Context()
-	redisClient, err := database.GetRedisClient(ctx)
+	resourceInfo, err := utils.GetResourceInfoFromCtx(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	concatString := redisClient.GetRedisValue(ctx, key)
-	resourceInfo, err := utils.GetResourceInfo(concatString)
-	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -39,12 +30,11 @@ func GetRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateRecord(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("CreateRecord called")
+	fmt.Println("-> CreateRecord")
 
-	var req types.ResourceInfo
-	err := json.NewDecoder(r.Body).Decode(&req)
+	var p types.ResourceInfo
+	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,15 +47,15 @@ func CreateRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shortestKey := redisClient.GetShortestNewKey(ctx, req.Key)
-	getUrl, err := database.GetSignedGetUrl(ctx, req.Key)
+	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key)
+	getUrl, err := database.GetSignedGetUrl(ctx, p.Key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	resourceValue := utils.GetResourceValue(req.FileName, req.Key, getUrl)
+	resourceValue := utils.GetResourceValue(p.FileName, p.Key, getUrl)
 	err = redisClient.SetRedisValue(ctx, shortestKey, resourceValue)
 	if err != nil {
 		fmt.Println(err)

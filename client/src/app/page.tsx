@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Dropzone from "react-dropzone";
+import { maxFileSize } from "./consts";
 import "./globals.css";
-import { fileUrl, isDev, post, uploadFile } from "./utils";
+import { isDev, post, uploadFile } from "./utils";
 
-const maxFiles = 0;
+const maxFiles = 5;
 
 export default function Home() {
   const [uploading, setUploading] = useState(false);
@@ -13,7 +14,7 @@ export default function Home() {
   const maxUploadsReached = uploadedFileKeys.length > maxFiles;
 
   async function handleFileDrop(file: File) {
-    if (!file) return;
+    if (!file || (file.size || 10e6) >= maxFileSize) return;
 
     setUploading(true);
     handleFileUpload(file)
@@ -28,6 +29,22 @@ export default function Home() {
       .finally(() => setUploading(false));
   }
 
+  function renderLabel(isDragActive: boolean) {
+    return uploading ? (
+      "File uploading..."
+    ) : isDragActive ? (
+      "Release to upload"
+    ) : (
+      <div className="column-center">
+        Drag here or click to upload
+        <br />
+        <div className="small-text">Max file size: {maxFileSize / 1e6}MB</div>
+      </div>
+    );
+  }
+
+  const filePath = process.env.SERVICE === "local" ? "file" : "download";
+
   return (
     <main>
       <Dropzone
@@ -39,13 +56,9 @@ export default function Home() {
           <div
             {...getRootProps()}
             className="drop-zone column-center"
-            style={{ borderColor: isDragActive ? "gainsboro" : "" }}
+            style={{ borderColor: isDragActive ? "rgb(25, 118, 210)" : "" }}
           >
-            {uploading
-              ? "File uploading..."
-              : isDragActive
-              ? "Release to upload"
-              : "Drag a file here to upload"}
+            {renderLabel(isDragActive)}
           </div>
         )}
       </Dropzone>
@@ -55,7 +68,7 @@ export default function Home() {
           <ul>
             {uploadedFileKeys.map((key) => (
               <li key={key}>
-                {fileUrl}/{key}
+                {window.location.host}/{filePath}/{key}
               </li>
             ))}
           </ul>
@@ -67,7 +80,10 @@ export default function Home() {
 
 async function handleFileUpload(file: File): Promise<string> {
   let fileKey = "";
-  return post("/api/object", {})
+  const { size, type } = file;
+  if (size >= maxFileSize) throw new Error();
+
+  return post("/api/object", { size, type })
     .then(async (res) => {
       const { key, url } = (await res.json()) || {};
       if (!key || !url || res.status !== 200) {
@@ -76,7 +92,7 @@ async function handleFileUpload(file: File): Promise<string> {
       fileKey = key;
       return url;
     })
-    .then((url) => uploadFile(file, url, isDev))
+    .then((url) => uploadFile(file, url))
     .then((res) => {
       if (res?.status !== 200) {
         throw new Error("Failed to upload file to presigned URL");

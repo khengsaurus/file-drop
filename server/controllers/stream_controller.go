@@ -11,23 +11,15 @@ import (
 )
 
 func StreamResource(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("StreamResource called")
 	key := chi.URLParam(r, "file_key")
+	fmt.Printf("-> StreamResource %s\n", key)
 	if key == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	ctx := r.Context()
-	redisClient, err := database.GetRedisClient(ctx)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	resourceVal := redisClient.GetRedisValue(ctx, key)
-	resourceInfo, err := utils.GetResourceInfo(resourceVal)
+	resourceInfo, err := utils.GetResourceInfoFromCtx(ctx, key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

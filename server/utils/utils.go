@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -8,31 +9,9 @@ import (
 	"strings"
 
 	"github.com/khengsaurus/file-drop/server/consts"
+	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/types"
 )
-
-func Json200(payload any, w http.ResponseWriter) {
-	res, _ := json.Marshal(payload)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
-}
-
-func ValidateAdmin(token string) bool {
-	// Simple validation for now
-	return token == "Bearer - admin"
-}
-
-func WriteImageHTML(title string, src string, w http.ResponseWriter) error {
-	tmpl, err := template.New("imagePage").Parse(ImagePageHtml)
-	if err != nil {
-		return err
-	}
-
-	page := types.HtmlPageImg{Title: title, Src: src}
-
-	return tmpl.Execute(w, page)
-}
 
 func GetResourceValue(fileName, fileKey, fileUrl string) string {
 	return fmt.Sprintf(
@@ -45,7 +24,7 @@ func GetResourceValue(fileName, fileKey, fileUrl string) string {
 	)
 }
 
-func GetResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
+func ParseResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
 	fileName := ""
 	fileKey := ""
 	url := ""
@@ -63,4 +42,45 @@ func GetResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
 	}
 
 	return &types.ResourceInfo{FileName: fileName, Key: fileKey, Url: url}, nil
+}
+
+func GetResourceInfoFromCtx(ctx context.Context, key string) (*types.ResourceInfo, error) {
+	var resourceInfo *types.ResourceInfo
+	redisCache, _ := ctx.Value(consts.RedisCacheKey).(LruCache)
+	resourceVal := redisCache.Get(key)
+
+	if resourceVal == "" {
+		redisClient, err := database.GetRedisClient(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		resourceVal = redisClient.GetRedisValue(ctx, key)
+		redisCache.Put(key, resourceVal)
+	}
+
+	resourceInfo, err := ParseResourceInfo(resourceVal)
+	if err != nil {
+		return nil, err
+	}
+
+	return resourceInfo, nil
+}
+
+func Json200(payload any, w http.ResponseWriter) {
+	res, _ := json.Marshal(payload)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func WriteImageHTML(title string, src string, w http.ResponseWriter) error {
+	tmpl, err := template.New("imagePage").Parse(ImagePageHtml)
+	if err != nil {
+		return err
+	}
+
+	page := types.HtmlPageImg{Title: title, Src: src}
+
+	return tmpl.Execute(w, page)
 }

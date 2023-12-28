@@ -33,7 +33,11 @@ export default function FilePage(props: FilePageProps) {
 
   return (
     <main>
-      <Button variant="outlined" onClick={downloadFile}>
+      <Button
+        variant="contained"
+        onClick={downloadFile}
+        style={{ fontSize: "16px", textTransform: "none" }}
+      >
         Download {file?.fileName}
       </Button>
     </main>

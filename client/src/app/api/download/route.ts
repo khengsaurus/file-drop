@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { get, post, serverUrl } from "../../utils";
+import { get, serverUrl } from "../../utils";
 
 export async function GET(req: NextRequest) {
   const fileKey = req.nextUrl.searchParams.get("fileKey");

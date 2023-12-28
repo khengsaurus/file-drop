@@ -6,6 +6,7 @@ import (
 
 var RestRouter = func(restApi chi.Router) {
 	restApi.Route("/object", func(api chi.Router) {
+		// FIXME: post-req body not passed??
 		api.Post("/", GetSignedPutUrl)
 		api.Get("/{file_key}", GetSignedGetUrl)
 	})
@@ -13,9 +14,4 @@ var RestRouter = func(restApi chi.Router) {
 		api.Post("/", CreateRecord)
 		api.Get("/{file_key}", GetRecord)
 	})
-}
-
-var AdminRouter = func(adminRouter chi.Router) {
-	adminRouter.Get("/", AdminGet)
-	adminRouter.Delete("/{action}", AdminDelete)
 }

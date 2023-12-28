@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -11,11 +12,23 @@ import (
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
-func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GetSignedPutUrl called")
+type FileInfo struct {
+	Size int    `json:"size"`
+	Type string `json:"type"`
+}
 
+func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 	key := uuid.New().String()
-	url, err := database.GetSignedPutUrl(r.Context(), key)
+	fmt.Printf("-> GetSignedPutUrl %s\n", key)
+
+	var p FileInfo
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	url, err := database.GetSignedPutUrl(r.Context(), key, p.Type, p.Size)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -26,8 +39,8 @@ func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GetSignedGetUrl called")
 	key := chi.URLParam(r, "fileKey")
+	fmt.Printf("-> GetSignedGetUrl %s\n", key)
 
 	url, err := database.GetSignedGetUrl(r.Context(), key)
 	if err != nil {

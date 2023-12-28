@@ -13,10 +13,10 @@ import (
 	"github.com/khengsaurus/file-drop/server/controllers"
 	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/middlewares"
+	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 var (
-	route_admin    = "/admin"
 	route_api      = "/api"
 	route_download = "/download"
 	route_file     = "/file"
@@ -29,12 +29,14 @@ func main() {
 		panic(envErr)
 	}
 
+	redisCache := utils.LruCacheConstructor(20, 5*time.Minute, 10*time.Minute)
 	redisClient := database.InitRedisClient()
 	s3Client := database.InitS3Client()
 
 	router := chi.NewRouter()
 	router.Use(middlewares.EnableCors)
 	router.Use(ChiMiddleware.Timeout(30 * time.Second))
+	router.Use(middlewares.WithContext(consts.RedisCacheKey, redisCache))
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
@@ -51,10 +53,6 @@ func main() {
 	// Dev
 	if consts.Local {
 		router.HandleFunc(route_test, test)
-		router.Route(route_admin, func(adminRouter chi.Router) {
-			adminRouter.Use(middlewares.AdminValidation)
-			controllers.AdminRouter(adminRouter)
-		})
 	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router)

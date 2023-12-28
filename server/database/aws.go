@@ -25,17 +25,23 @@ func InitS3Client() *S3Client {
 		fmt.Println("AWS config: local")
 		awsSession, err = session.NewSession(
 			&aws.Config{
-				Region:           aws.String(os.Getenv("AWS_REGION")),
-				Endpoint:         aws.String(os.Getenv("AWS_URI_DEV")),
-				Credentials:      credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_DEV"), os.Getenv("AWS_SECRET_KEY_DEV"), ""),
+				Region:   aws.String(os.Getenv("AWS_REGION")),
+				Endpoint: aws.String(os.Getenv("AWS_URI_DEV")),
+				Credentials: credentials.NewStaticCredentials(
+					os.Getenv("AWS_ACCESS_KEY_DEV"),
+					os.Getenv("AWS_SECRET_KEY_DEV"), ""),
 				S3ForcePathStyle: aws.Bool(true),
 			})
 	} else {
 		fmt.Println("AWS config: remote")
 		awsSession, err = session.NewSession(
 			&aws.Config{
-				Region:      aws.String(os.Getenv("AWS_REGION")),
-				Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), ""),
+				Region: aws.String(os.Getenv("AWS_REGION")),
+				Credentials: credentials.NewStaticCredentials(
+					os.Getenv("AWS_ACCESS_KEY"),
+					os.Getenv("AWS_SECRET_KEY"),
+					"",
+				),
 			})
 	}
 	if err != nil {
@@ -62,7 +68,12 @@ func GetObject(ctx context.Context, key string) (*s3.GetObjectOutput, error) {
 	return result, nil
 }
 
-func GetSignedPutUrl(ctx context.Context, key string) (string, error) {
+func GetSignedPutUrl(
+	ctx context.Context,
+	key string,
+	contentType string,
+	size int,
+) (string, error) {
 	s3Client, ok := ctx.Value(consts.S3ClientKey).(*S3Client)
 	if !ok {
 		return "", fmt.Errorf("couldn't find %s in request context", consts.S3ClientKey)
@@ -70,9 +81,11 @@ func GetSignedPutUrl(ctx context.Context, key string) (string, error) {
 
 	req, _ := s3Client.instance.PutObjectRequest(
 		&s3.PutObjectInput{
-			Bucket:      aws.String(os.Getenv("AWS_BUCKET_NAME")),
-			Key:         aws.String(key),
-			ContentType: aws.String("multipart/form-data"),
+			Bucket:        aws.String(os.Getenv("AWS_BUCKET_NAME")),
+			Key:           aws.String(key),
+			ContentType:   aws.String(contentType),
+			ContentLength: aws.Int64(int64(size)),
+			ACL:           aws.String("public-read"),
 		},
 	)
 
@@ -114,7 +127,10 @@ func DeleteObject(ctx context.Context, key string) (bool, error) {
 	return true, nil
 }
 
-func DeleteObjects(ctx context.Context, objects *s3.DeleteObjectsInput) (bool, error) {
+func DeleteObjects(
+	ctx context.Context,
+	objects *s3.DeleteObjectsInput,
+) (bool, error) {
 	fmt.Println("DeleteObjects called")
 	s3Client, ok := ctx.Value(consts.S3ClientKey).(*S3Client)
 	if !ok {
