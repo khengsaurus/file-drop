@@ -43,8 +43,6 @@ export default function Home() {
     );
   }
 
-  const filePath = process.env.SERVICE === "local" ? "file" : "download";
-
   return (
     <main>
       <Dropzone
@@ -68,7 +66,7 @@ export default function Home() {
           <ul>
             {uploadedFileKeys.map((key) => (
               <li key={key}>
-                {window.location.host}/{filePath}/{key}
+                {window.location.host}/file/{key}
               </li>
             ))}
           </ul>

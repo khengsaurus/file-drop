@@ -23,7 +23,7 @@ func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 
 	var p FileInfo
 	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
+	if err != nil || p.Size > 2e6 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

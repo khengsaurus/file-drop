@@ -33,7 +33,8 @@ def main():
             Bucket=BUCKET_NAME,
             CORSConfiguration=BUCKET_CORS_CONFIG
         )
-    except:
+    except Exception as err:
+        print(err)
         res = "FAILURE"
     finally:
         print("Create Localstack S3 bucket '%s' - %s" % (BUCKET_NAME, res))

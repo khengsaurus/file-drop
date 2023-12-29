@@ -85,7 +85,6 @@ func GetSignedPutUrl(
 			Key:           aws.String(key),
 			ContentType:   aws.String(contentType),
 			ContentLength: aws.Int64(int64(size)),
-			ACL:           aws.String("public-read"),
 		},
 	)
 

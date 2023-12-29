@@ -1,5 +1,3 @@
-import { maxFileSize } from "../consts";
-
 export function get(
   url: string,
   params?: Record<string, any>,
@@ -10,7 +8,7 @@ export function get(
     method: "GET",
     headers: headers || {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   });
 }
@@ -36,7 +34,6 @@ export function uploadFile(
     headers: {
       "Content-Type": file.type,
       "Content-Length": String(file.size),
-      "x-amz-acl": "public-read",
     },
     body: file,
     signal: abortSignal?.signal,
