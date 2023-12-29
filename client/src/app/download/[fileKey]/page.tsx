@@ -3,7 +3,7 @@
 import { Button } from "@mui/material";
 import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
-import { get } from "../../utils";
+import { get, serverUrl } from "../../utils";
 
 interface FilePageProps {
   params: { fileKey: string };
@@ -15,7 +15,7 @@ export default function FilePage(props: FilePageProps) {
   const { fileKey } = params;
 
   useEffect(() => {
-    get("/api/record", { fileKey })
+    get(`${serverUrl}/api/record`, { fileKey })
       .then((res) => res.json())
       .then(setFile)
       .catch(console.error);

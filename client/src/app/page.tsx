@@ -4,7 +4,7 @@ import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { maxFileSize } from "./consts";
 import "./globals.css";
-import { isDev, post, uploadFile } from "./utils";
+import { post, serverUrl, uploadFile } from "./utils";
 
 const maxFiles = 5;
 
@@ -81,7 +81,7 @@ async function handleFileUpload(file: File): Promise<string> {
   const { size, type } = file;
   if (size >= maxFileSize) throw new Error();
 
-  return post("/api/object", { size, type })
+  return post(`${serverUrl}/api/object`, { size, type })
     .then(async (res) => {
       const { key, url } = (await res.json()) || {};
       if (!key || !url || res.status !== 200) {
@@ -100,5 +100,5 @@ async function handleFileUpload(file: File): Promise<string> {
 }
 
 async function postDownloadRecord(fileName: string, key: string) {
-  return post("/api/record", { fileName, key });
+  return post(`${serverUrl}/api/record`, { fileName, key });
 }
