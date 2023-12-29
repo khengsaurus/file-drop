@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  // basePath: '/file-drop',
+  basePath: "/file-drop",
   env: {
     DEV: process.env.DEV,
     FILE_URL: process.env.FILE_URL,
