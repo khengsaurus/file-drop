@@ -1,14 +1,12 @@
-"use client";
-
 import { useState } from "react";
 import Dropzone from "react-dropzone";
-import { maxFileSize } from "./consts";
-import "./globals.css";
-import { post, serverUrl, uploadFile } from "./utils";
+import { maxFileSize } from "../consts";
+import "../styles/globals.css";
+import { post, serverUrl, uploadFile } from "../utils";
 
 const maxFiles = 5;
 
-export default function Home() {
+export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
   const maxUploadsReached = uploadedFileKeys.length > maxFiles;

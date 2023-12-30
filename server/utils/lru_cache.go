@@ -7,9 +7,9 @@ import (
 )
 
 type Node struct {
+	createdAt time.Time
 	data      string
 	keyPtr    *list.Element
-	createdAt time.Time
 }
 
 type LruCache struct {
@@ -19,11 +19,7 @@ type LruCache struct {
 	queue    *list.List
 }
 
-func LruCacheConstructor(
-	capacity int,
-	ttl time.Duration,
-	clearInterval time.Duration,
-) LruCache {
+func LruCacheConstructor(capacity int, ttl, clearInterval time.Duration) LruCache {
 	lruCache := LruCache{
 		capacity: capacity,
 		items:    make(map[string]*Node),

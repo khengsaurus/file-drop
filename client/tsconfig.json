@@ -8,7 +8,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -20,15 +20,9 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    "*.ts",
-    "*.tsx",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "include": ["*.ts", "*.tsx", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

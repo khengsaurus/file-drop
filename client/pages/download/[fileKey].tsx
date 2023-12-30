@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@mui/material";
 import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
