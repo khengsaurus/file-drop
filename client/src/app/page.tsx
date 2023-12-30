@@ -4,7 +4,7 @@ import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { maxFileSize } from "./consts";
 import "./globals.css";
-import { isDev, post, serverUrl, uploadFile } from "./utils";
+import { getFileUrl, post, serverUrl, uploadFile } from "./utils";
 
 const maxFiles = 5;
 
@@ -43,6 +43,9 @@ export default function Home() {
     );
   }
 
+  const fileUrlPrefix =
+    typeof window !== "undefined" ? getFileUrl(window.location) : "";
+
   return (
     <main>
       <Dropzone
@@ -62,11 +65,11 @@ export default function Home() {
       </Dropzone>
       {uploadedFileKeys.length > 0 && (
         <div className="uploaded-list">
-          Your uploaded file(s)
+          Your uploaded file{fileUrlPrefix ? "" : " key"}(s)
           <ul>
             {uploadedFileKeys.map((key) => (
               <li key={key}>
-                {window.location.host}/file-drop/file/{key}
+                {fileUrlPrefix}/{key}
               </li>
             ))}
           </ul>

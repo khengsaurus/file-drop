@@ -15,7 +15,7 @@ export default function FilePage(props: FilePageProps) {
   const { fileKey } = params;
 
   useEffect(() => {
-    get(`${serverUrl}/api/record`, { fileKey })
+    get(`${serverUrl}/api/record/${fileKey}`)
       .then((res) => res.json())
       .then(setFile)
       .catch(console.error);

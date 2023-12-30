@@ -6,7 +6,6 @@ import (
 
 var RestRouter = func(restApi chi.Router) {
 	restApi.Route("/object", func(api chi.Router) {
-		// FIXME: post-req body not passed??
 		api.Post("/", GetSignedPutUrl)
 		api.Get("/{file_key}", GetSignedGetUrl)
 	})

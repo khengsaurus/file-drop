@@ -8,7 +8,7 @@ export function get(
     method: "GET",
     headers: headers || {
       Accept: "application/json",
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
   });
 }
@@ -38,6 +38,14 @@ export function uploadFile(
     body: file,
     signal: abortSignal?.signal,
   });
+}
+
+export function getFileUrl(windowLocation: typeof window.location) {
+  const { host, pathname } = windowLocation || {};
+  if (host.endsWith(".vercel.app")) {
+    return host + pathname + "/file";
+  }
+  return host + "/file";
 }
 
 export * from "./consts";
