@@ -4,7 +4,7 @@ import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { maxFileSize } from "./consts";
 import "./globals.css";
-import { post, serverUrl, uploadFile } from "./utils";
+import { isDev, post, serverUrl, uploadFile } from "./utils";
 
 const maxFiles = 5;
 
@@ -66,7 +66,7 @@ export default function Home() {
           <ul>
             {uploadedFileKeys.map((key) => (
               <li key={key}>
-                {window.location.host}/file/{key}
+                {window.location.host}/file-drop/file/{key}
               </li>
             ))}
           </ul>
