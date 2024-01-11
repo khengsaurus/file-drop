@@ -1,11 +1,15 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/utils"
 )
@@ -26,6 +30,17 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if resourceInfo == nil {
+		clientUrl := ""
+		if consts.Local {
+			clientUrl = os.Getenv("CLIENT_BASE_URL_DEV")
+		} else {
+			clientUrl = os.Getenv("CLIENT_BASE_URL")
+		}
+		http.Redirect(w, r, clientUrl, http.StatusMovedPermanently)
+		return
+	}
+
 	result, err := database.GetObject(ctx, resourceInfo.Key)
 	if err != nil {
 		fmt.Println(err)
@@ -33,12 +48,14 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", resourceInfo.FileName))
-	w.Header().Set("Cache-Control", "no-store")
-
-	_, err = io.Copy(w, result.Body)
+	buffer, err := ioutil.ReadAll(result.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error streaming resource as HTTP response: %s", err.Error()), http.StatusInternalServerError)
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	reader := bytes.NewReader(buffer)
+
+	http.ServeContent(w, r, resourceInfo.FileName, time.Now(), reader)
 }

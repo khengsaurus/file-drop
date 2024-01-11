@@ -56,7 +56,13 @@ func GetResourceInfoFromCtx(ctx context.Context, key string) (*types.ResourceInf
 		}
 
 		resourceVal = redisClient.GetRedisValue(ctx, key)
-		redisCache.Put(key, resourceVal)
+		if resourceVal != "" {
+			redisCache.Put(key, resourceVal)
+		}
+	}
+
+	if resourceVal == "" {
+		return nil, nil
 	}
 
 	resourceInfo, err := ParseResourceInfo(resourceVal)

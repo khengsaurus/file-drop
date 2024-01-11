@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  basePath: "/file-drop",
+  basePath: process.env.DEV === "1" ? "" : "/file-drop",
   env: {
     DEV: process.env.DEV,
     SERVER_URL: process.env.SERVER_URL,
     SERVER_URL_DEV: process.env.SERVER_URL_DEV,
-    SERVICE: process.env.SERVICE,
+    SERVICE: process.env.SERVICE
   },
   async rewrites() {
     const serverUrl =
@@ -16,10 +16,10 @@ const nextConfig = {
     return [
       {
         source: "/file/:path*",
-        destination: `${serverUrl}/file/:path*`,
-      },
+        destination: `${serverUrl}/stream/:path*`
+      }
     ];
-  },
+  }
 };
 
 module.exports = nextConfig;

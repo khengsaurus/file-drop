@@ -16,13 +16,6 @@ import (
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
-var (
-	route_api      = "/api"
-	route_download = "/download"
-	route_file     = "/file"
-	route_test     = "/test"
-)
-
 func main() {
 	envErr := godotenv.Load(".env")
 	if envErr != nil {
@@ -40,19 +33,22 @@ func main() {
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
-	router.Route(route_api, func(restRouter chi.Router) {
+	router.Route("/api", func(restRouter chi.Router) {
 		controllers.RestRouter(restRouter)
 	})
-	router.Route(route_file, func(api chi.Router) {
+	router.Route("/file", func(api chi.Router) {
 		api.Get("/{file_key}", controllers.ViewResource)
 	})
-	router.Route(route_download, func(api chi.Router) {
+	router.Route("/stream", func(api chi.Router) {
 		api.Get("/{file_key}", controllers.StreamResource)
+	})
+	router.Route("/download", func(api chi.Router) {
+		api.Get("/{file_key}", controllers.StreamResourceForDownload)
 	})
 
 	// Dev
 	if consts.Local {
-		router.HandleFunc(route_test, test)
+		router.HandleFunc("/test", test)
 	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router)

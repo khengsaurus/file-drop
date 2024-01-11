@@ -1,1 +1,1 @@
-export const maxFileSize = 2e6;
+export const maxFileSize = 5e6;

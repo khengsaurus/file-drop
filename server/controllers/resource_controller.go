@@ -34,13 +34,13 @@ func ViewResource(w http.ResponseWriter, r *http.Request) {
 	case ".json", ".text", ".txt", ".html":
 		http.Redirect(w, r, resourceInfo.Url, http.StatusFound)
 	default:
-		clientBaseUrl := ""
+		clientDownloadUrl := ""
 		if consts.Local {
-			clientBaseUrl = os.Getenv("CLIENT_DOWNLOAD_URL_DEV")
+			clientDownloadUrl = os.Getenv("CLIENT_DOWNLOAD_URL_DEV")
 		} else {
-			clientBaseUrl = os.Getenv("CLIENT_DOWNLOAD_URL")
+			clientDownloadUrl = os.Getenv("CLIENT_DOWNLOAD_URL")
 		}
-		clientUrl := fmt.Sprintf("%s/%s", clientBaseUrl, key)
+		clientUrl := fmt.Sprintf("%s/%s", clientDownloadUrl, key)
 		http.Redirect(w, r, clientUrl, http.StatusFound)
 	}
 
