@@ -11,15 +11,27 @@ import (
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
-func GetRecord(w http.ResponseWriter, r *http.Request) {
+func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "file_key")
-	fmt.Printf("-> GetRecord %s\n", key)
+	fmt.Printf("-> GetResourceInfoFromRedis %s\n", key)
 	if key == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	resourceInfo, err := utils.RetrieveRedisValue(r.Context(), key)
+	redisValue, err := utils.RetrieveRedisValue(r.Context(), key)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if string(redisValue) == "" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	resourceInfo, err := utils.ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -29,8 +41,8 @@ func GetRecord(w http.ResponseWriter, r *http.Request) {
 	utils.Json200(resourceInfo, w)
 }
 
-func CreateRecord(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("-> CreateRecord")
+func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-> SaveResourceInfoToRedis")
 
 	var p types.ResourceInfo
 	err := json.NewDecoder(r.Body).Decode(&p)

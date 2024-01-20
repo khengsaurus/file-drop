@@ -33,17 +33,17 @@ func main() {
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
-	router.Route("/api", func(restRouter chi.Router) {
-		controllers.RestRouter(restRouter)
+	router.Route("/api", func(r chi.Router) {
+		controllers.ApiRouter(r)
 	})
-	router.Route("/file", func(api chi.Router) {
-		api.Get("/{file_key}", controllers.ViewFile)
+	router.Route("/file", func(r chi.Router) {
+		r.Get("/{file_key}", controllers.ViewFile)
 	})
-	router.Route("/stream", func(api chi.Router) {
-		api.Get("/{file_key}", controllers.StreamResource)
+	router.Route("/stream", func(r chi.Router) {
+		r.Get("/{file_key}", controllers.StreamResource)
 	})
-	router.Route("/download", func(api chi.Router) {
-		api.Get("/{file_key}", controllers.StreamResourceForDownload)
+	router.Route("/download", func(r chi.Router) {
+		r.Get("/{file_key}", controllers.StreamResourceForDownload)
 	})
 
 	// Dev

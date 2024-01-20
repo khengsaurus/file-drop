@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/khengsaurus/file-drop/server/consts"
@@ -65,6 +66,16 @@ func Json200(payload any, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
+}
+
+func Redirect404(w http.ResponseWriter, r *http.Request) {
+	client404 := ""
+	if consts.Local {
+		client404 = os.Getenv("CLIENT_404_URL_DEV")
+	} else {
+		client404 = os.Getenv("CLIENT_404_URL")
+	}
+	http.Redirect(w, r, client404, http.StatusTemporaryRedirect)
 }
 
 func WriteImageHTML(title string, src string, w http.ResponseWriter) error {

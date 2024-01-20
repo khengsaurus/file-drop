@@ -4,22 +4,30 @@ import { Button } from "@mui/material";
 import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
 import { get, serverUrl } from "../../utils";
+import { useRouter } from "next/navigation";
 
 interface FilePageProps {
   params: { fileKey: string };
 }
 
-export default function FilePage(props: FilePageProps) {
-  const { params } = props;
-  const [file, setFile] = useState({ url: "", fileName: "" });
+export default function FilePage({ params }: FilePageProps) {
   const { fileKey } = params;
+  const [file, setFile] = useState({ url: "", fileName: "" });
+  const router = useRouter();
 
   useEffect(() => {
-    get(`${serverUrl}/api/record/${fileKey}`)
-      .then((res) => res.json())
+    get(`${serverUrl}/api/object-record/${fileKey}`)
+      .then((res) => {
+        if (res?.status === 404) {
+          router.push("/");
+          throw new Error("Resource not found");
+        } else {
+          return res.json();
+        }
+      })
       .then(setFile)
       .catch(console.error);
-  }, [fileKey]);
+  }, [fileKey, router]);
 
   function downloadFile() {
     if (!file?.url) {
@@ -36,7 +44,8 @@ export default function FilePage(props: FilePageProps) {
       <Button
         variant="contained"
         onClick={downloadFile}
-        style={{ fontSize: "16px", textTransform: "none" }}
+        style={{ fontSize: "15px", textTransform: "none" }}
+        size="small"
       >
         Download {file?.fileName}
       </Button>

@@ -4,13 +4,13 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var RestRouter = func(restApi chi.Router) {
-	restApi.Route("/object", func(api chi.Router) {
+var ApiRouter = func(router chi.Router) {
+	router.Route("/object", func(api chi.Router) {
 		api.Post("/", GetSignedPutUrl)
 		api.Get("/{file_key}", GetSignedGetUrl)
 	})
-	restApi.Route("/record", func(api chi.Router) {
-		api.Post("/", CreateRecord)
-		api.Get("/{file_key}", GetRecord)
+	router.Route("/object-record", func(api chi.Router) {
+		api.Post("/", SaveResourceInfoToRedis)
+		api.Get("/{file_key}", GetResourceInfoFromRedis)
 	})
 }

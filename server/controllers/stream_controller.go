@@ -30,6 +30,11 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if string(redisValue) == "" {
+		utils.Redirect404(w, r)
+		return
+	}
+
 	resourceInfo, err := utils.ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
@@ -44,7 +49,7 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		} else {
 			clientUrl = os.Getenv("CLIENT_BASE_URL")
 		}
-		http.Redirect(w, r, clientUrl, http.StatusMovedPermanently)
+		http.Redirect(w, r, clientUrl, http.StatusTemporaryRedirect)
 		return
 	}
 

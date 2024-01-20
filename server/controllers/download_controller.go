@@ -26,6 +26,11 @@ func StreamResourceForDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if string(redisValue) == "" {
+		utils.Redirect404(w, r)
+		return
+	}
+
 	resourceInfo, err := utils.ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
