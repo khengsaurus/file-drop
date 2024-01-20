@@ -68,6 +68,16 @@ func Json200(payload any, w http.ResponseWriter) {
 	w.Write(res)
 }
 
+func RedirectHome(w http.ResponseWriter, r *http.Request) {
+	url := ""
+	if consts.Local {
+		url = os.Getenv("CLIENT_HOME_URL_DEV")
+	} else {
+		url = os.Getenv("CLIENT_HOME_URL")
+	}
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
 func Redirect404(w http.ResponseWriter, r *http.Request) {
 	client404 := ""
 	if consts.Local {

@@ -18,9 +18,11 @@ func ReditectToUrlFromRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	redisValue, err := utils.RetrieveRedisValue(r.Context(), key)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+	if redisValue == "" || err != nil {
+		if err != nil {
+			fmt.Println(err)
+		}
+		utils.RedirectHome(w, r)
 		return
 	}
 
