@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
 import Link from "next/link";
+import { Button } from "../components";
 import "../globals.css";
 
 export default function Custom404() {
@@ -7,11 +7,7 @@ export default function Custom404() {
     <main>
       <p>The link you entered may be expired</p>
       <br />
-      <Button
-        variant="contained"
-        style={{ fontSize: "15px", textTransform: "none" }}
-        size="small"
-      >
+      <Button>
         <Link href="/">Home</Link>
       </Button>
     </main>

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
@@ -76,4 +77,34 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.Json200(&types.ResourceInfo{Key: shortestKey}, w)
+}
+
+func SaveUrlToRedis(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-> SaveUrlToRedis")
+
+	var p types.UrlInfo
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	redisClient, err := database.GetRedisClient(ctx)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	key := uuid.New().String()
+	shortestKey := redisClient.GetShortestNewKey(ctx, key)
+	err = redisClient.SetRedisValue(ctx, shortestKey, p.Url)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	utils.Json200(&types.UrlInfo{Url: p.Url, Key: shortestKey}, w)
 }

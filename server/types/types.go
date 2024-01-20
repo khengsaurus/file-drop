@@ -10,3 +10,8 @@ type ResourceInfo struct {
 	Key      string `json:"key"`
 	Url      string `json:"url"`
 }
+
+type UrlInfo struct {
+	Url string `json:"url"`
+	Key string `json:"key"`
+}

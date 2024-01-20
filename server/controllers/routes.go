@@ -13,4 +13,7 @@ var ApiRouter = func(router chi.Router) {
 		api.Post("/", SaveResourceInfoToRedis)
 		api.Get("/{file_key}", GetResourceInfoFromRedis)
 	})
+	router.Route("/url", func(api chi.Router) {
+		api.Post("/", SaveUrlToRedis)
+	})
 }

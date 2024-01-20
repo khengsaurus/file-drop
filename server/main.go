@@ -45,6 +45,9 @@ func main() {
 	router.Route("/download", func(r chi.Router) {
 		r.Get("/{file_key}", controllers.StreamResourceForDownload)
 	})
+	router.Route("/url", func(r chi.Router) {
+		r.Get("/{url_key}", controllers.ReditectToUrlFromRedis)
+	})
 
 	// Dev
 	if consts.Local {

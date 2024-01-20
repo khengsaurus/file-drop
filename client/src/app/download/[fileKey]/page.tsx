@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@mui/material";
 import { saveAs } from "file-saver";
-import { useEffect, useState } from "react";
-import { get, serverUrl } from "../../utils";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "../../../components";
+import { get, serverUrl } from "../../utils";
 
 interface FilePageProps {
   params: { fileKey: string };
@@ -41,14 +41,7 @@ export default function FilePage({ params }: FilePageProps) {
 
   return (
     <main>
-      <Button
-        variant="contained"
-        onClick={downloadFile}
-        style={{ fontSize: "15px", textTransform: "none" }}
-        size="small"
-      >
-        Download {file?.fileName}
-      </Button>
+      <Button onClick={downloadFile}>Download {file?.fileName}</Button>
     </main>
   );
 }

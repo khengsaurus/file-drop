@@ -6,7 +6,7 @@ import { maxFileSize } from "../consts";
 import { getFileUrl, post, serverUrl, uploadFile } from "../utils";
 import "../../globals.css";
 
-const maxFiles = 5;
+const maxFiles = 3;
 
 export default function Upload() {
   const [uploading, setUploading] = useState(false);
@@ -64,7 +64,7 @@ export default function Upload() {
       </Dropzone>
       {uploadedFileKeys.length > 0 && (
         <div className="uploaded-list">
-          Your uploaded file{fileUrlPrefix ? "" : " key"}(s)
+          Your uploaded file(s)
           <ul>
             {uploadedFileKeys.map((key) => (
               <li key={key}>

@@ -48,4 +48,26 @@ export function getFileUrl(windowLocation: typeof window.location) {
   return host + "/file";
 }
 
+export function getUrlUrl(windowLocation: typeof window.location) {
+  const { host, pathname } = windowLocation || {};
+  if (host.endsWith(".vercel.app")) {
+    return host + pathname + "/url";
+  }
+  return host + "/url";
+}
+
+/** @see https://www.freecodecamp.org/news/check-if-a-javascript-string-is-a-url/ */
+export function isValidUrl(urlString: string) {
+  var urlPattern = new RegExp(
+    "^(https?:\\/\\/)?" + // validate protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // validate domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // validate OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // validate port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // validate query string
+      "(\\#[-a-z\\d_]*)?$",
+    "i"
+  ); // validate fragment locator
+  return !!urlPattern.test(urlString);
+}
+
 export * from "./consts";

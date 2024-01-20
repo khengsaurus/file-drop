@@ -16,6 +16,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/url",
+        destination: `/`,
+        permanent: true,
+      },
+      {
         source: "/not-found",
         destination: `/404`,
         permanent: true,
