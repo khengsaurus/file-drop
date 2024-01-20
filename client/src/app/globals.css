@@ -61,9 +61,11 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative;
   align-items: center;
   height: 100%;
   width: 100%;
+  min-height: 500px;
 }
 
 .upload {
@@ -100,6 +102,12 @@ main {
   li {
     margin-top: 6px;
   }
+}
+
+.home-info {
+  position: absolute;
+  bottom: 4px;
+  font-size: 12px;
 }
 
 .small-text {

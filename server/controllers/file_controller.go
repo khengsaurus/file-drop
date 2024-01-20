@@ -12,15 +12,22 @@ import (
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
-func ViewResource(w http.ResponseWriter, r *http.Request) {
+func ViewFile(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "file_key")
-	fmt.Printf("-> ViewResource %s\n", key)
+	fmt.Printf("-> ViewFile %s\n", key)
 	if key == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	resourceInfo, err := utils.GetResourceInfoFromCtx(r.Context(), key)
+	redisValue, err := utils.RetrieveRedisValue(r.Context(), key)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	resourceInfo, err := utils.ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

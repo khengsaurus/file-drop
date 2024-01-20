@@ -13,30 +13,27 @@ import (
 	"github.com/khengsaurus/file-drop/server/types"
 )
 
-func GetResourceValue(fileName, fileKey, fileUrl string) string {
-	return fmt.Sprintf(
+func BuildRedisValue(fileName, fileKey, fileUrl string) consts.RedisResourceValue {
+	return consts.RedisResourceValue(fmt.Sprintf(
 		"%s%s%s%s%s",
 		fileName,
 		consts.RedisValDelim,
 		fileKey,
 		consts.RedisValDelim,
 		fileUrl,
-	)
+	))
 }
 
-func ParseResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
-	fileName := ""
-	fileKey := ""
-	url := ""
+func ParseRedisValue(resourceValue consts.RedisResourceValue) (*types.ResourceInfo, error) {
+	fileName, fileKey, url, val := "", "", "", string(resourceValue)
 
-	if strings.Count(resourceVal, consts.RedisValDelim) >= 2 {
-		// resourceVal is in the format name___key___url
-		lastIndex := strings.LastIndex(resourceVal, consts.RedisValDelim)
-		url = resourceVal[lastIndex+len(consts.RedisValDelim):]
-		resourceVal = resourceVal[:lastIndex] // now name___key
-		lastIndex = strings.LastIndex(resourceVal, consts.RedisValDelim)
-		fileKey = resourceVal[lastIndex+len(consts.RedisValDelim):]
-		fileName = resourceVal[:lastIndex]
+	if strings.Count(val, consts.RedisValDelim) >= 2 {
+		lastIndex := strings.LastIndex(val, consts.RedisValDelim)
+		url = val[lastIndex+len(consts.RedisValDelim):]
+		val = val[:lastIndex] // now name___key
+		lastIndex = strings.LastIndex(val, consts.RedisValDelim)
+		fileKey = val[lastIndex+len(consts.RedisValDelim):]
+		fileName = val[:lastIndex]
 	} else {
 		return nil, fmt.Errorf("faield to parse resource information")
 	}
@@ -44,33 +41,23 @@ func ParseResourceInfo(resourceVal string) (*types.ResourceInfo, error) {
 	return &types.ResourceInfo{FileName: fileName, Key: fileKey, Url: url}, nil
 }
 
-func GetResourceInfoFromCtx(ctx context.Context, key string) (*types.ResourceInfo, error) {
-	var resourceInfo *types.ResourceInfo
+func RetrieveRedisValue(ctx context.Context, key string) (consts.RedisResourceValue, error) {
 	redisCache, _ := ctx.Value(consts.RedisCacheKey).(LruCache)
-	resourceVal := redisCache.Get(key)
+	redisValue := redisCache.Get(key)
 
-	if resourceVal == "" {
+	if redisValue == "" {
 		redisClient, err := database.GetRedisClient(ctx)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
-		resourceVal = redisClient.GetRedisValue(ctx, key)
-		if resourceVal != "" {
-			redisCache.Put(key, resourceVal)
+		redisValue = redisClient.RetrieveRedisValue(ctx, key)
+		if redisValue != "" {
+			redisCache.Put(key, redisValue)
 		}
 	}
 
-	if resourceVal == "" {
-		return nil, nil
-	}
-
-	resourceInfo, err := ParseResourceInfo(resourceVal)
-	if err != nil {
-		return nil, err
-	}
-
-	return resourceInfo, nil
+	return consts.RedisResourceValue(redisValue), nil
 }
 
 func Json200(payload any, w http.ResponseWriter) {

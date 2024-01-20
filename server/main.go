@@ -37,7 +37,7 @@ func main() {
 		controllers.RestRouter(restRouter)
 	})
 	router.Route("/file", func(api chi.Router) {
-		api.Get("/{file_key}", controllers.ViewResource)
+		api.Get("/{file_key}", controllers.ViewFile)
 	})
 	router.Route("/stream", func(api chi.Router) {
 		api.Get("/{file_key}", controllers.StreamResource)

@@ -75,6 +75,7 @@ export default function Home() {
           </ul>
         </div>
       )}
+      <div className="home-info">Links will have a TTL of 1 day</div>
     </main>
   );
 }

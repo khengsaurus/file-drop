@@ -19,7 +19,14 @@ func StreamResourceForDownload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	resourceInfo, err := utils.GetResourceInfoFromCtx(ctx, key)
+	redisValue, err := utils.RetrieveRedisValue(ctx, key)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	resourceInfo, err := utils.ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -6,6 +6,7 @@ import (
 )
 
 type ContextKey string
+type RedisResourceValue string /* [name, key, url] joined by RedisValueDelim  */
 
 var (
 	Local          = os.Getenv("LOCAL") == "true"

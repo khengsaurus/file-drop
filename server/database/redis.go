@@ -67,7 +67,7 @@ func (redisClient *RedisClient) GetShortestNewKey(ctx context.Context, key strin
 	return redisClient.GetShortestNewKey(ctx, uuid.New().String())
 }
 
-func (redisClient *RedisClient) GetRedisValue(
+func (redisClient *RedisClient) RetrieveRedisValue(
 	ctx context.Context,
 	key string,
 ) string {

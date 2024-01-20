@@ -19,7 +19,7 @@ func GetRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resourceInfo, err := utils.GetResourceInfoFromCtx(r.Context(), key)
+	resourceInfo, err := utils.RetrieveRedisValue(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -55,8 +55,8 @@ func CreateRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resourceValue := utils.GetResourceValue(p.FileName, p.Key, getUrl)
-	err = redisClient.SetRedisValue(ctx, shortestKey, resourceValue)
+	resourceValue := utils.BuildRedisValue(p.FileName, p.Key, getUrl)
+	err = redisClient.SetRedisValue(ctx, shortestKey, string(resourceValue))
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
