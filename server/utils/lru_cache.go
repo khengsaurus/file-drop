@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Node struct {
+type node struct {
 	data      string
 	keyPtr    *list.Element
 	createdAt time.Time
@@ -14,19 +14,19 @@ type Node struct {
 
 type LruCache struct {
 	capacity int
-	items    map[string]*Node
+	items    map[string]*node
 	lock     *sync.Mutex
 	queue    *list.List
 }
 
-func LruCacheConstructor(
+func NewLruCache(
 	capacity int,
 	ttl time.Duration,
 	clearInterval time.Duration,
 ) LruCache {
 	lruCache := LruCache{
 		capacity: capacity,
-		items:    make(map[string]*Node),
+		items:    make(map[string]*node),
 		lock:     &sync.Mutex{},
 		queue:    list.New(),
 	}
@@ -49,7 +49,7 @@ func (c *LruCache) Put(key string, value string) *list.Element {
 			c.queue.Remove(toDelete)
 			delete(c.items, toDelete.Value.(string))
 		}
-		c.items[key] = &Node{
+		c.items[key] = &node{
 			data:      value,
 			keyPtr:    c.queue.PushFront(key),
 			createdAt: time.Now(),
@@ -80,14 +80,11 @@ func (c *LruCache) SetClearInterval(ttl, interval time.Duration) {
 			defer c.lock.Unlock()
 
 			var next *list.Element
-			now := time.Now()
-
 			for curr := c.queue.Front(); curr != nil; curr = next {
 				next = curr.Next()
 				key := curr.Value.(string)
 				if item, exists := c.items[key]; exists {
-					age := now.Sub(item.createdAt)
-					if age > ttl {
+					if time.Since(item.createdAt) > ttl {
 						c.queue.Remove(curr)
 						delete(c.items, key)
 					}

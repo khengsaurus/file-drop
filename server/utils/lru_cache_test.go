@@ -8,7 +8,7 @@ import (
 )
 
 func TestLruCache(t *testing.T) {
-	lru := LruCacheConstructor(2, time.Minute, 2*time.Minute)
+	lru := NewLruCache(2, time.Minute, 2*time.Minute)
 	results := []string{"a", "a", "a", "a"}
 
 	lru.Put("1", "1")
@@ -30,7 +30,7 @@ func TestLruCache(t *testing.T) {
 }
 
 func TestLruCacheTtl1(t *testing.T) {
-	lru := LruCacheConstructor(2, time.Second, 2*time.Second)
+	lru := NewLruCache(2, time.Second, 2*time.Second)
 
 	results := []string{"a", "a", "a", "a", "a"}
 
@@ -55,7 +55,7 @@ func TestLruCacheTtl1(t *testing.T) {
 }
 
 func TestLruCacheTtl2(t *testing.T) {
-	lru := LruCacheConstructor(3, 3*time.Second, 2*time.Second)
+	lru := NewLruCache(3, 3*time.Second, 2*time.Second)
 
 	results := []string{"a", "a", "a", "a", "a", "a", "a"}
 

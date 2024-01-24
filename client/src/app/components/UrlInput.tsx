@@ -1,15 +1,11 @@
-import { TextField } from "@mui/material";
 import { useState } from "react";
 import { Button } from "../../components";
 import { getUrlUrl, isValidUrl, post, serverUrl } from "../utils";
-
-const maxLinks = 3;
 
 export default function UrlInput() {
   const [link, setLink] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadedUrlKeys, setUploadedUrlKeys] = useState<string[]>([]);
-  const maxUploadsReached = uploadedUrlKeys.length > maxLinks;
 
   function handleLink() {
     if (!isValidUrl(link)) {
@@ -21,7 +17,7 @@ export default function UrlInput() {
       .then(async (res) => {
         const resData = await res.json();
         if (resData?.key) {
-          setUploadedUrlKeys((keys) => [resData.key, ...keys]);
+          setUploadedUrlKeys((keys) => [resData.key, ...keys.slice(0, 4)]);
           setLink("");
         }
       })
@@ -40,7 +36,10 @@ export default function UrlInput() {
           value={link}
           onChange={(e) => setLink(e?.target?.value)}
         />
-        <Button onClick={handleLink} disabled={uploading || maxUploadsReached}>
+        <Button
+          onClick={handleLink}
+          variant={uploading ? "outlined" : "contained"}
+        >
           Shorten
         </Button>
       </div>

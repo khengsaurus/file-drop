@@ -22,7 +22,7 @@ func main() {
 		panic(envErr)
 	}
 
-	redisCache := utils.LruCacheConstructor(20, 5*time.Minute, 10*time.Minute)
+	redisCache := utils.NewLruCache(20, 5*time.Minute, 10*time.Minute)
 	redisClient := database.InitRedisClient()
 	s3Client := database.InitS3Client()
 
@@ -40,7 +40,11 @@ func main() {
 		r.Get("/{file_key}", controllers.ViewFile)
 	})
 	router.Route("/stream", func(r chi.Router) {
-		r.Get("/{file_key}", controllers.StreamResource)
+		r.Group(func(r chi.Router) {
+			postRateLimiter := utils.NewRateLimiter(10, 2*time.Minute, 3*time.Minute)
+			r.Use(postRateLimiter.Handle)
+			r.Get("/{file_key}", controllers.StreamResource)
+		})
 	})
 	router.Route("/download", func(r chi.Router) {
 		r.Get("/{file_key}", controllers.StreamResourceForDownload)

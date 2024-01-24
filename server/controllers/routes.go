@@ -1,19 +1,31 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/go-chi/chi/v5"
+	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 var ApiRouter = func(router chi.Router) {
-	router.Route("/object", func(api chi.Router) {
-		api.Post("/", GetSignedPutUrl)
-		api.Get("/{file_key}", GetSignedGetUrl)
+	router.Route("/object", func(r chi.Router) {
+		r.Get("/{file_key}", GetSignedGetUrl)
+
+		r.Group(func(r chi.Router) {
+			postRateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute)
+			r.Use(postRateLimiter.Handle)
+			r.Post("/", GetSignedPutUrl)
+		})
 	})
-	router.Route("/object-record", func(api chi.Router) {
-		api.Post("/", SaveResourceInfoToRedis)
-		api.Get("/{file_key}", GetResourceInfoFromRedis)
+	router.Route("/object-record", func(r chi.Router) {
+		r.Post("/", SaveResourceInfoToRedis)
+		r.Get("/{file_key}", GetResourceInfoFromRedis)
 	})
-	router.Route("/url", func(api chi.Router) {
-		api.Post("/", SaveUrlToRedis)
+	router.Route("/url", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			postRateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute)
+			r.Use(postRateLimiter.Handle)
+			r.Post("/", SaveUrlToRedis)
+		})
 	})
 }

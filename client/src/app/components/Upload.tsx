@@ -1,17 +1,12 @@
-"use-client";
-
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { maxFileSize } from "../consts";
 import { getFileUrl, post, serverUrl, uploadFile } from "../utils";
 import "../../globals.css";
 
-const maxFiles = 3;
-
 export default function Upload() {
   const [uploading, setUploading] = useState(false);
   const [uploadedFileKeys, setUploadedFileKeys] = useState<string[]>([]);
-  const maxUploadsReached = uploadedFileKeys.length > maxFiles;
 
   async function handleFileDrop(file: File) {
     if (!file || (file.size || 10e6) >= maxFileSize) return;
@@ -22,7 +17,7 @@ export default function Upload() {
       .then(async (res) => {
         const resData = await res.json();
         if (resData?.key) {
-          setUploadedFileKeys((keys) => [resData.key, ...keys]);
+          setUploadedFileKeys((keys) => [resData.key, ...keys.slice(0, 4)]);
         }
       })
       .catch()
@@ -49,7 +44,7 @@ export default function Upload() {
     <>
       <Dropzone
         onDrop={(files) => handleFileDrop(files?.[0])}
-        disabled={uploading || maxUploadsReached}
+        disabled={uploading}
         multiple={false}
       >
         {({ getRootProps, isDragActive }) => (
