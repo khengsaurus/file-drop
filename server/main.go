@@ -36,9 +36,6 @@ func main() {
 	router.Route("/api", func(r chi.Router) {
 		controllers.ApiRouter(r)
 	})
-	router.Route("/file", func(r chi.Router) {
-		r.Get("/{file_key}", controllers.ViewFile)
-	})
 	router.Route("/stream", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			postRateLimiter := utils.NewRateLimiter(10, 2*time.Minute, 3*time.Minute)
@@ -46,12 +43,15 @@ func main() {
 			r.Get("/{file_key}", controllers.StreamResource)
 		})
 	})
-	router.Route("/download", func(r chi.Router) {
-		r.Get("/{file_key}", controllers.StreamResourceForDownload)
-	})
 	router.Route("/url", func(r chi.Router) {
 		r.Get("/{url_key}", controllers.ReditectToUrlFromRedis)
 	})
+	// router.Route("/file", func(r chi.Router) {
+	// 	r.Get("/{file_key}", controllers.ViewFile)
+	// })
+	// router.Route("/download", func(r chi.Router) {
+	// 	r.Get("/{file_key}", controllers.StreamResourceForDownload)
+	// })
 
 	// Dev
 	if consts.Local {

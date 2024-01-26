@@ -3,7 +3,7 @@ package controllers
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -60,7 +60,7 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buffer, err := ioutil.ReadAll(result.Body)
+	buffer, err := io.ReadAll(result.Body)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -69,5 +69,6 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 
 	reader := bytes.NewReader(buffer)
 
-	http.ServeContent(w, r, resourceInfo.FileName, time.Now(), reader)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", resourceInfo.FileName))
+	http.ServeContent(w, r, resourceInfo.FileName, time.Unix(resourceInfo.UploadedAt, 0), reader)
 }

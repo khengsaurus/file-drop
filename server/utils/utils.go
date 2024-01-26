@@ -7,7 +7,9 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
@@ -16,30 +18,36 @@ import (
 
 func BuildRedisValue(fileName, fileKey, fileUrl string) consts.RedisResourceValue {
 	return consts.RedisResourceValue(fmt.Sprintf(
-		"%s%s%s%s%s",
+		"%s%s%s%s%d%s%s",
 		fileName,
 		consts.RedisValDelim,
 		fileKey,
+		consts.RedisValDelim,
+		time.Now().Unix(),
 		consts.RedisValDelim,
 		fileUrl,
 	))
 }
 
 func ParseRedisValue(resourceValue consts.RedisResourceValue) (*types.ResourceInfo, error) {
-	fileName, fileKey, url, val := "", "", "", string(resourceValue)
+	fullString := string(resourceValue)
+	values := strings.Split(fullString, consts.RedisValDelim)
 
-	if strings.Count(val, consts.RedisValDelim) >= 2 {
-		lastIndex := strings.LastIndex(val, consts.RedisValDelim)
-		url = val[lastIndex+len(consts.RedisValDelim):]
-		val = val[:lastIndex] // now name___key
-		lastIndex = strings.LastIndex(val, consts.RedisValDelim)
-		fileKey = val[lastIndex+len(consts.RedisValDelim):]
-		fileName = val[:lastIndex]
-	} else {
-		return nil, fmt.Errorf("faield to parse resource information")
+	if len(values) < 4 {
+		return nil, fmt.Errorf("failed to parse resource information")
 	}
 
-	return &types.ResourceInfo{FileName: fileName, Key: fileKey, Url: url}, nil
+	uploadedAt, err := strconv.ParseInt(values[2], 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse resource information")
+	}
+
+	return &types.ResourceInfo{
+		FileName:   values[0],
+		Key:        values[1],
+		UploadedAt: uploadedAt,
+		Url:        values[3],
+	}, nil
 }
 
 func RetrieveRedisValue(ctx context.Context, key string) (consts.RedisResourceValue, error) {

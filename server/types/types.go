@@ -6,9 +6,10 @@ type HtmlPageImg struct {
 }
 
 type ResourceInfo struct {
-	FileName string `json:"fileName"`
-	Key      string `json:"key"`
-	Url      string `json:"url"`
+	FileName   string `json:"fileName"`
+	Key        string `json:"key"`
+	UploadedAt int64  `json:"uploadedAt"`
+	Url        string `json:"url"`
 }
 
 type UrlInfo struct {

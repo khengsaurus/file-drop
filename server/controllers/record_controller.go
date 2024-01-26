@@ -39,6 +39,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Cache-Control", "public, max-age=31536000")
 	utils.Json200(resourceInfo, w)
 }
 
