@@ -108,6 +108,11 @@ main {
   transition: 300ms;
 }
 
+.drop-zone:hover {
+  cursor: pointer;
+  border-color: rgb(20, 110, 180);
+}
+
 .uploaded-list {
   margin: 16px 0px;
   text-align: center;
