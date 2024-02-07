@@ -1,14 +1,30 @@
+import { serverUrl } from "./consts";
+
+const defaultJsonHeaders = {
+  Accept: "application/json",
+  "Content-Type": "application/json",
+};
+
+export function getCurrentClientToken() {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem("client-token") || "";
+}
+
+export function getNewClientToken() {
+  return fetch(`${serverUrl}/api/token`);
+}
+
 export function get(
   url: string,
   params?: Record<string, any>,
-  headers?: Record<string, any>
+  headers: Record<string, any> = defaultJsonHeaders
 ) {
   const urlWithParams = params ? `${url}?${new URLSearchParams(params)}` : url;
   return fetch(urlWithParams, {
     method: "GET",
-    headers: headers || {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+    headers: {
+      ...headers,
+      "X-Client-Token": getCurrentClientToken(),
     },
   });
 }
@@ -17,8 +33,8 @@ export function post(url: string, data = {}) {
   return fetch(url, {
     method: "POST",
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
+      ...defaultJsonHeaders,
+      "X-Client-Token": getCurrentClientToken(),
     },
     body: JSON.stringify(data),
   });

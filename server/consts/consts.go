@@ -16,4 +16,5 @@ var (
 	RedisTTL       = 24 * time.Hour
 	RedisValDelim  = "___"
 	S3ClientKey    = ContextKey("s3_client")
+	TokenKey       = []byte(os.Getenv("HASH_KEY"))
 )

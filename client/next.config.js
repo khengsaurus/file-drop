@@ -12,12 +12,12 @@ const nextConfig = {
     return [
       {
         source: "/file",
-        destination: `/`,
+        destination: "/",
         permanent: true,
       },
       {
         source: "/url",
-        destination: `/`,
+        destination: "/",
         permanent: true,
       },
       {

@@ -16,3 +16,7 @@ type UrlInfo struct {
 	Url string `json:"url"`
 	Key string `json:"key"`
 }
+
+type TokenInfo struct {
+	Token string `json:"token"`
+}

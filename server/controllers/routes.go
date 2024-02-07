@@ -10,10 +10,9 @@ import (
 var ApiRouter = func(router chi.Router) {
 	router.Route("/object", func(r chi.Router) {
 		r.Get("/{file_key}", GetSignedGetUrl)
-
 		r.Group(func(r chi.Router) {
-			postRateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute)
-			r.Use(postRateLimiter.Handle)
+			rateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute, false)
+			r.Use(rateLimiter.Handle)
 			r.Post("/", GetSignedPutUrl)
 		})
 	})
@@ -21,10 +20,13 @@ var ApiRouter = func(router chi.Router) {
 		r.Post("/", SaveResourceInfoToRedis)
 		r.Get("/{file_key}", GetResourceInfoFromRedis)
 	})
+	router.Route("/token", func(r chi.Router) {
+		r.Get("/", GetToken)
+	})
 	router.Route("/url", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			postRateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute)
-			r.Use(postRateLimiter.Handle)
+			rateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute, false)
+			r.Use(rateLimiter.Handle)
 			r.Post("/", SaveUrlToRedis)
 		})
 	})

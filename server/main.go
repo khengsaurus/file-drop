@@ -38,8 +38,8 @@ func main() {
 	})
 	router.Route("/stream", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			postRateLimiter := utils.NewRateLimiter(10, 2*time.Minute, 3*time.Minute)
-			r.Use(postRateLimiter.Handle)
+			rateLimiter := utils.NewRateLimiter(30, 2*time.Minute, 3*time.Minute, true)
+			r.Use(rateLimiter.Handle)
 			r.Get("/{file_key}", controllers.StreamResource)
 		})
 	})
