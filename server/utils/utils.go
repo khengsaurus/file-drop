@@ -83,7 +83,7 @@ func RedirectHome(w http.ResponseWriter, r *http.Request) {
 	} else {
 		url = os.Getenv("CLIENT_HOME_URL")
 	}
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, url, http.StatusFound)
 }
 
 func Redirect404(w http.ResponseWriter, r *http.Request) {
@@ -93,7 +93,7 @@ func Redirect404(w http.ResponseWriter, r *http.Request) {
 	} else {
 		client404 = os.Getenv("CLIENT_404_URL")
 	}
-	http.Redirect(w, r, client404, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, client404, http.StatusFound)
 }
 
 func WriteImageHTML(title string, src string, w http.ResponseWriter) error {

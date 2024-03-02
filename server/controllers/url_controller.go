@@ -33,5 +33,5 @@ func ReditectToUrlFromRedis(w http.ResponseWriter, r *http.Request) {
 		url = fmt.Sprintf("https://%s", redisValue)
 	}
 
-	http.Redirect(w, r, url, http.StatusPermanentRedirect)
+	http.Redirect(w, r, url, http.StatusFound)
 }

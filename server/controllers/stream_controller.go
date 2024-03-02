@@ -49,7 +49,7 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 		} else {
 			clientUrl = os.Getenv("CLIENT_BASE_URL")
 		}
-		http.Redirect(w, r, clientUrl, http.StatusTemporaryRedirect)
+		http.Redirect(w, r, clientUrl, http.StatusFound)
 		return
 	}
 
