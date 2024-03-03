@@ -22,13 +22,15 @@ func main() {
 		panic(envErr)
 	}
 
-	redisCache := utils.NewLruCache(20, 5*time.Minute, 10*time.Minute)
-	redisClient := database.InitRedisClient()
 	s3Client := database.InitS3Client()
+	mySqlClient := database.InitMySqlConnection(24*time.Hour, time.Hour)
+	redisClient := database.InitRedisClient()
+	redisCache := utils.NewLruCache(1000, 10*time.Minute, 20*time.Minute)
 
 	router := chi.NewRouter()
 	router.Use(middlewares.EnableCors)
 	router.Use(ChiMiddleware.Timeout(30 * time.Second))
+	router.Use(middlewares.WithContext(consts.MySqlClientKey, mySqlClient))
 	router.Use(middlewares.WithContext(consts.RedisCacheKey, redisCache))
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
@@ -44,7 +46,7 @@ func main() {
 		})
 	})
 	router.Route("/url", func(r chi.Router) {
-		r.Get("/{url_key}", controllers.ReditectToUrlFromRedis)
+		r.Get("/{url_key}", controllers.RedirectToUrl)
 	})
 	// router.Route("/file", func(r chi.Router) {
 	// 	r.Get("/{file_key}", controllers.ViewFile)

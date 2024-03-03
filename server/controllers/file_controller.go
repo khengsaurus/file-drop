@@ -20,7 +20,7 @@ func ViewFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redisValue, err := utils.RetrieveRedisValue(r.Context(), key)
+	redisValue, err := utils.GetRedisValue(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -50,7 +50,10 @@ func ParseRedisValue(resourceValue consts.RedisResourceValue) (*types.ResourceIn
 	}, nil
 }
 
-func RetrieveRedisValue(ctx context.Context, key string) (consts.RedisResourceValue, error) {
+func GetRedisValue(
+	ctx context.Context,
+	key string,
+) (consts.RedisResourceValue, error) {
 	redisCache, _ := ctx.Value(consts.RedisCacheKey).(LruCache)
 	redisValue := redisCache.Get(key)
 
@@ -60,13 +63,23 @@ func RetrieveRedisValue(ctx context.Context, key string) (consts.RedisResourceVa
 			return "", err
 		}
 
-		redisValue = redisClient.RetrieveRedisValue(ctx, key)
+		redisValue = redisClient.GetValue(ctx, key)
 		if redisValue != "" {
 			redisCache.Put(key, redisValue)
 		}
 	}
 
 	return consts.RedisResourceValue(redisValue), nil
+}
+
+// Save URL to redis with a TTL of 1 hour
+func SaveUrlToRedis(ctx context.Context, key string, url string) error {
+	redisClient, err := database.GetRedisClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	return redisClient.SetValue(ctx, key, url, time.Hour)
 }
 
 func Json200(payload any, w http.ResponseWriter) {

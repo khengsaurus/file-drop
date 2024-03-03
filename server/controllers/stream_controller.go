@@ -23,7 +23,7 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	redisValue, err := utils.RetrieveRedisValue(ctx, key)
+	redisValue, err := utils.GetRedisValue(ctx, key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

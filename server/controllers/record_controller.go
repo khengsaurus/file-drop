@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -20,7 +21,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redisValue, err := utils.RetrieveRedisValue(r.Context(), key)
+	redisValue, err := utils.GetRedisValue(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -61,7 +62,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key)
+	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key, 5)
 	getUrl, err := database.GetSignedGetUrl(ctx, p.Key)
 	if err != nil {
 		fmt.Println(err)
@@ -70,7 +71,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resourceValue := utils.BuildRedisValue(p.FileName, p.Key, getUrl)
-	err = redisClient.SetRedisValue(ctx, shortestKey, string(resourceValue))
+	err = redisClient.SetValue(ctx, shortestKey, string(resourceValue), 24*time.Hour)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -80,8 +81,8 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	utils.Json200(&types.ResourceInfo{Key: shortestKey}, w)
 }
 
-func SaveUrlToRedis(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("-> SaveUrlToRedis")
+func SaveUrl(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-> SaveUrl")
 
 	var p types.UrlInfo
 	err := json.NewDecoder(r.Body).Decode(&p)
@@ -91,21 +92,30 @@ func SaveUrlToRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	redisClient, err := database.GetRedisClient(ctx)
+	mySqlClient, err := database.GetMySqlClient(ctx)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	key := uuid.New().String()
-	shortestKey := redisClient.GetShortestNewKey(ctx, key)
-	err = redisClient.SetRedisValue(ctx, shortestKey, p.Url)
+	shortestKey, err := mySqlClient.GetShortestNewKey(ctx, uuid.New().String(), 5)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	_, err = mySqlClient.WriteUrlRecord(ctx, shortestKey, p.Url)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = utils.SaveUrlToRedis(ctx, shortestKey, p.Url)
+	if err != nil {
+		fmt.Println(err)
+	}
 	utils.Json200(&types.UrlInfo{Url: p.Url, Key: shortestKey}, w)
 }

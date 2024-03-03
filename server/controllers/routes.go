@@ -27,7 +27,7 @@ var ApiRouter = func(router chi.Router) {
 		r.Group(func(r chi.Router) {
 			rateLimiter := utils.NewRateLimiter(5, 2*time.Minute, 3*time.Minute, false)
 			r.Use(rateLimiter.Handle)
-			r.Post("/", SaveUrlToRedis)
+			r.Post("/", SaveUrl)
 		})
 	})
 }

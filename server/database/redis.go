@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
@@ -19,9 +20,8 @@ func InitRedisClient() *RedisClient {
 
 	if consts.Local {
 		fmt.Println("Redis config: local")
-		redisAddress := fmt.Sprintf("%s:6379", os.Getenv("REDIS_URI_DEV"))
 		opts = (&redis.Options{
-			Addr:     redisAddress,
+			Addr:     os.Getenv("REDIS_URI_DEV"),
 			Password: "",
 			DB:       0,
 		})
@@ -51,11 +51,14 @@ func (redisClient *RedisClient) CheckExists(ctx context.Context, key string) *re
 	return redisClient.instance.Exists(ctx, key)
 }
 
-func (redisClient *RedisClient) GetShortestNewKey(ctx context.Context, key string) string {
+func (redisClient *RedisClient) GetShortestNewKey(
+	ctx context.Context,
+	key string,
+	maxLen int,
+) string {
 	shortenedKey := ""
 
-	// max length 5
-	for i := 3; i <= 6; i++ {
+	for i := 3; i <= maxLen+1; i++ {
 		shortenedKey = key[:i]
 		cmd := redisClient.CheckExists(ctx, shortenedKey)
 		exists, err := cmd.Result()
@@ -64,10 +67,25 @@ func (redisClient *RedisClient) GetShortestNewKey(ctx context.Context, key strin
 		}
 	}
 
-	return redisClient.GetShortestNewKey(ctx, uuid.New().String())
+	return redisClient.GetShortestNewKey(ctx, uuid.New().String(), maxLen)
 }
 
-func (redisClient *RedisClient) RetrieveRedisValue(
+func (redisClient *RedisClient) SetValue(
+	ctx context.Context,
+	key string,
+	value string,
+	ttl time.Duration,
+) error {
+	prefixedKey := fmt.Sprintf("%s_%s", consts.RedisKeyPrefix, key)
+	return redisClient.instance.Set(
+		ctx,
+		prefixedKey,
+		value,
+		ttl,
+	).Err()
+}
+
+func (redisClient *RedisClient) GetValue(
 	ctx context.Context,
 	key string,
 ) string {
@@ -85,18 +103,4 @@ func (redisClient *RedisClient) RetrieveRedisValue(
 
 func (redisClient *RedisClient) DeleteKey(ctx context.Context, key string) {
 	redisClient.instance.Del(ctx, key)
-}
-
-func (redisClient *RedisClient) SetRedisValue(
-	ctx context.Context,
-	key string,
-	value string,
-) error {
-	prefixedKey := fmt.Sprintf("%s_%s", consts.RedisKeyPrefix, key)
-	return redisClient.instance.Set(
-		ctx,
-		prefixedKey,
-		value,
-		consts.RedisTTL,
-	).Err()
 }
