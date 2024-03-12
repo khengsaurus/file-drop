@@ -22,10 +22,10 @@ func main() {
 		panic(envErr)
 	}
 
-	s3Client := database.InitS3Client()
+	fmt.Println("init URL service")
 	mySqlClient := database.InitMySqlConnection(24*time.Hour, time.Hour)
-	redisClient := database.InitRedisClient()
 	redisCache := utils.NewLruCache(1000, 10*time.Minute, 20*time.Minute)
+	redisClient := database.InitRedisClient()
 
 	router := chi.NewRouter()
 	router.Use(middlewares.EnableCors)
@@ -33,32 +33,12 @@ func main() {
 	router.Use(middlewares.WithContext(consts.MySqlClientKey, mySqlClient))
 	router.Use(middlewares.WithContext(consts.RedisCacheKey, redisCache))
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
-	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
-	router.Route("/api", func(r chi.Router) {
-		controllers.ApiRouter(r)
-	})
-	router.Route("/stream", func(r chi.Router) {
-		r.Group(func(r chi.Router) {
-			rateLimiter := utils.NewRateLimiter(30, 2*time.Minute, 3*time.Minute, true)
-			r.Use(rateLimiter.Handle)
-			r.Get("/{file_key}", controllers.StreamResource)
-		})
-	})
+	router.HandleFunc("/ping", ping)
+
 	router.Route("/url", func(r chi.Router) {
 		r.Get("/{url_key}", controllers.RedirectToUrl)
 	})
-	// router.Route("/file", func(r chi.Router) {
-	// 	r.Get("/{file_key}", controllers.ViewFile)
-	// })
-	// router.Route("/download", func(r chi.Router) {
-	// 	r.Get("/{file_key}", controllers.StreamResourceForDownload)
-	// })
-
-	// Dev
-	if consts.Local {
-		router.HandleFunc("/test", test)
-	}
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router)
 	if err != nil {
@@ -66,7 +46,7 @@ func main() {
 	}
 }
 
-func test(w http.ResponseWriter, r *http.Request) {
+func ping(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Success"))
 }
