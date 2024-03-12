@@ -6,7 +6,9 @@ ADD . /app
 
 WORKDIR /app
 
-RUN go build -o main .
+ARG service
+
+RUN go build -o main ./cmd/$service
 
 EXPOSE 8080
 
