@@ -42,7 +42,13 @@ func InitMySqlConnection(
 		)
 	} else {
 		fmt.Println("MySQL config: remote")
-		connStr = os.Getenv("MYSQL_URI")
+		connStr = fmt.Sprintf(
+			"%s:%s@tcp(%s)/%s",
+			os.Getenv("MYSQL_UN"),
+			os.Getenv("MYSQL_PW"),
+			os.Getenv("MYSQL_URL"),
+			os.Getenv("MYSQL_DB"),
+		)
 	}
 
 	mySqlInstance, err := sql.Open("mysql", connStr)

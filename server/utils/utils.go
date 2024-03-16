@@ -115,7 +115,14 @@ func WriteImageHTML(title string, src string, w http.ResponseWriter) error {
 		return err
 	}
 
-	page := types.HtmlPageImg{Title: title, Src: src}
+	page := HtmlPageImg{Title: title, Src: src}
 
 	return tmpl.Execute(w, page)
+}
+
+// --------------- types ---------------
+
+type HtmlPageImg struct {
+	Title string
+	Src   string
 }

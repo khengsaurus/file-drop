@@ -84,7 +84,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 func SaveUrl(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("-> SaveUrl")
 
-	var p types.UrlInfo
+	var p UrlInfo
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -117,5 +117,12 @@ func SaveUrl(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	utils.Json200(&types.UrlInfo{Url: p.Url, Key: shortestKey}, w)
+	utils.Json200(&UrlInfo{Url: p.Url, Key: shortestKey}, w)
+}
+
+// --------------- types ---------------
+
+type UrlInfo struct {
+	Url string `json:"url"`
+	Key string `json:"key"`
 }
