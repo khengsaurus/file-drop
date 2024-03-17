@@ -10,7 +10,7 @@ import (
 func GetToken(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("-> GetToken")
 
-	utils.Json200(&TokenInfo{Token: utils.GenerateHash()}, w)
+	Json200(&TokenInfo{Token: utils.GenerateHash()}, w)
 }
 
 // --------------- types ---------------

@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 func StreamResource(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +22,7 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	redisValue, err := utils.GetRedisValue(ctx, key)
+	redisValue, err := GetRedisValue(ctx, key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,11 +30,11 @@ func StreamResource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if string(redisValue) == "" {
-		utils.Redirect404(w, r)
+		Redirect404(w, r)
 		return
 	}
 
-	resourceInfo, err := utils.ParseRedisValue(redisValue)
+	resourceInfo, err := ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

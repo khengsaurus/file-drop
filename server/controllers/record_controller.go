@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
@@ -21,7 +20,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redisValue, err := utils.GetRedisValue(r.Context(), key)
+	redisValue, err := GetRedisValue(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -33,7 +32,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resourceInfo, err := utils.ParseRedisValue(redisValue)
+	resourceInfo, err := ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -41,7 +40,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Cache-Control", "public, max-age=31536000")
-	utils.Json200(resourceInfo, w)
+	Json200(resourceInfo, w)
 }
 
 func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +61,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key, 5)
+	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key)
 	getUrl, err := database.GetSignedGetUrl(ctx, p.Key)
 	if err != nil {
 		fmt.Println(err)
@@ -70,7 +69,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resourceValue := utils.BuildRedisValue(p.FileName, p.Key, getUrl)
+	resourceValue := BuildRedisValue(p.FileName, p.Key, getUrl)
 	err = redisClient.SetValue(ctx, shortestKey, string(resourceValue), 24*time.Hour)
 	if err != nil {
 		fmt.Println(err)
@@ -78,7 +77,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Json200(&types.ResourceInfo{Key: shortestKey}, w)
+	Json200(&types.ResourceInfo{Key: shortestKey}, w)
 }
 
 func SaveUrl(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +98,7 @@ func SaveUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shortestKey, err := mySqlClient.GetShortestNewKey(ctx, uuid.New().String(), 5)
+	shortestKey, err := mySqlClient.GetShortestNewKey(ctx, utils.RandString(8))
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -113,11 +112,11 @@ func SaveUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.SaveUrlToRedis(ctx, shortestKey, p.Url)
+	err = SaveUrlToRedis(ctx, shortestKey, p.Url)
 	if err != nil {
 		fmt.Println(err)
 	}
-	utils.Json200(&UrlInfo{Url: p.Url, Key: shortestKey}, w)
+	Json200(&UrlInfo{Url: p.Url, Key: shortestKey}, w)
 }
 
 // --------------- types ---------------

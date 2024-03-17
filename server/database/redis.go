@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/google/uuid"
 	"github.com/khengsaurus/file-drop/server/consts"
+	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 type RedisClient struct {
@@ -51,14 +51,10 @@ func (redisClient *RedisClient) CheckExists(ctx context.Context, key string) *re
 	return redisClient.instance.Exists(ctx, key)
 }
 
-func (redisClient *RedisClient) GetShortestNewKey(
-	ctx context.Context,
-	key string,
-	maxLen int,
-) string {
+func (redisClient *RedisClient) GetShortestNewKey(ctx context.Context, key string) string {
 	shortenedKey := ""
 
-	for i := 3; i <= maxLen+1; i++ {
+	for i := 3; i <= len(key)+1; i++ {
 		shortenedKey = key[:i]
 		cmd := redisClient.CheckExists(ctx, shortenedKey)
 		exists, err := cmd.Result()
@@ -67,7 +63,7 @@ func (redisClient *RedisClient) GetShortestNewKey(
 		}
 	}
 
-	return redisClient.GetShortestNewKey(ctx, uuid.New().String(), maxLen)
+	return redisClient.GetShortestNewKey(ctx, utils.RandString(8))
 }
 
 func (redisClient *RedisClient) SetValue(

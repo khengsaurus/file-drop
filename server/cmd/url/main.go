@@ -23,7 +23,7 @@ func main() {
 	}
 
 	fmt.Println("init URL service")
-	mySqlClient := database.InitMySqlConnection(24*time.Hour, time.Hour)
+	mySqlClient := database.InitMySqlConnection(24 * time.Hour)
 	redisCache := utils.NewLruCache(1000, 10*time.Minute, 20*time.Minute)
 	redisClient := database.InitRedisClient()
 

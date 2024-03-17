@@ -23,10 +23,12 @@ func main() {
 	}
 
 	fmt.Println("init API service")
-	mySqlClient := database.InitMySqlConnection(24*time.Hour, time.Hour)
+	mySqlClient := database.InitMySqlConnection(24 * time.Hour)
 	redisCache := utils.NewLruCache(1000, 10*time.Minute, 20*time.Minute)
 	redisClient := database.InitRedisClient()
 	s3Client := database.InitS3Client()
+
+	go mySqlClient.SetClearInterval(time.Hour)
 
 	router := chi.NewRouter()
 	router.Use(middlewares.EnableCors)

@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/consts"
-	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 func ViewFile(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +19,7 @@ func ViewFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redisValue, err := utils.GetRedisValue(r.Context(), key)
+	redisValue, err := GetRedisValue(r.Context(), key)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -28,11 +27,11 @@ func ViewFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if string(redisValue) == "" {
-		utils.Redirect404(w, r)
+		Redirect404(w, r)
 		return
 	}
 
-	resourceInfo, err := utils.ParseRedisValue(redisValue)
+	resourceInfo, err := ParseRedisValue(redisValue)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -42,7 +41,7 @@ func ViewFile(w http.ResponseWriter, r *http.Request) {
 	extension := filepath.Ext(resourceInfo.FileName)
 	switch strings.ToLower(extension) {
 	case ".img", ".jpeg", ".jpg", ".png", ".svg":
-		err = utils.WriteImageHTML(resourceInfo.FileName, resourceInfo.Url, w)
+		err = WriteImageHTML(resourceInfo.FileName, resourceInfo.Url, w)
 	case ".json", ".text", ".txt", ".html":
 		http.Redirect(w, r, resourceInfo.Url, http.StatusFound)
 	default:

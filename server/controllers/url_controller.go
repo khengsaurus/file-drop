@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 func RedirectToUrl(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +19,7 @@ func RedirectToUrl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	redisValue, err := utils.GetRedisValue(ctx, key)
+	redisValue, err := GetRedisValue(ctx, key)
 	if err == nil && redisValue != "" {
 		var url = ""
 		if strings.HasPrefix(string(redisValue), "http") {
@@ -48,9 +47,9 @@ func RedirectToUrl(w http.ResponseWriter, r *http.Request) {
 			url = fmt.Sprintf("https://%s", urlEntry.Link)
 		}
 		http.Redirect(w, r, url, http.StatusFound)
-		utils.SaveUrlToRedis(ctx, urlEntry.Id, urlEntry.Link)
+		SaveUrlToRedis(ctx, urlEntry.Id, urlEntry.Link)
 	} else {
-		utils.RedirectHome(w, r)
+		RedirectHome(w, r)
 	}
 
 }

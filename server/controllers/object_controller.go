@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"github.com/khengsaurus/file-drop/server/database"
 	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
@@ -18,7 +17,7 @@ type FileInfo struct {
 }
 
 func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
-	key := uuid.New().String()
+	key := utils.RandString(8)
 	fmt.Printf("-> GetSignedPutUrl %s\n", key)
 
 	var p FileInfo
@@ -35,7 +34,7 @@ func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Json200(&types.ResourceInfo{Url: url, Key: key}, w)
+	Json200(&types.ResourceInfo{Url: url, Key: key}, w)
 }
 
 func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
@@ -49,5 +48,5 @@ func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Json200(&types.ResourceInfo{Url: url}, w)
+	Json200(&types.ResourceInfo{Url: url}, w)
 }

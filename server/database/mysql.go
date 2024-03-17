@@ -10,8 +10,8 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
 	"github.com/khengsaurus/file-drop/server/consts"
+	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 type MySqlClient struct {
@@ -28,7 +28,6 @@ type UrlEntry struct {
 
 func InitMySqlConnection(
 	maxRecordAge time.Duration,
-	clearInterval time.Duration,
 ) *MySqlClient {
 	connStr := ""
 	if consts.Local {
@@ -61,7 +60,6 @@ func InitMySqlConnection(
 		lock:         &sync.Mutex{},
 		maxRecordAge: maxRecordAge,
 	}
-	go client.SetClearInterval(clearInterval)
 
 	return client
 }
@@ -87,13 +85,13 @@ func (mySqlClient *MySqlClient) CheckExists(ctx context.Context, id string) (boo
 	return exists, nil
 }
 
-func (mySqlClient *MySqlClient) GetShortestNewKey(ctx context.Context,
+func (mySqlClient *MySqlClient) GetShortestNewKey(
+	ctx context.Context,
 	key string,
-	maxLen int,
 ) (string, error) {
 	shortenedKey := ""
 
-	for i := 3; i <= maxLen+1; i++ {
+	for i := 3; i <= len(key)+1; i++ {
 		shortenedKey = key[:i]
 		exists, err := mySqlClient.CheckExists(ctx, shortenedKey)
 		if err != nil {
@@ -104,7 +102,7 @@ func (mySqlClient *MySqlClient) GetShortestNewKey(ctx context.Context,
 		}
 	}
 
-	return mySqlClient.GetShortestNewKey(ctx, uuid.New().String(), maxLen)
+	return mySqlClient.GetShortestNewKey(ctx, utils.RandString(8))
 }
 
 func (mySqlClient *MySqlClient) GetUrlRecordById(ctx context.Context, id string) (*UrlEntry, error) {
