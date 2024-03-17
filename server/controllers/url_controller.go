@@ -39,17 +39,18 @@ func RedirectToUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if urlEntry != nil {
-		var url = ""
-		if strings.HasPrefix(urlEntry.Link, "http") {
-			url = urlEntry.Link
-		} else {
-			url = fmt.Sprintf("https://%s", urlEntry.Link)
-		}
-		http.Redirect(w, r, url, http.StatusFound)
-		SaveUrlToRedis(ctx, urlEntry.Id, urlEntry.Link)
-	} else {
+	if urlEntry == nil {
 		RedirectHome(w, r)
+		return
 	}
+
+	var url = ""
+	if strings.HasPrefix(urlEntry.Link, "http") {
+		url = urlEntry.Link
+	} else {
+		url = fmt.Sprintf("https://%s", urlEntry.Link)
+	}
+	http.Redirect(w, r, url, http.StatusFound)
+	SaveUrlToRedis(ctx, urlEntry.Id, urlEntry.Link)
 
 }

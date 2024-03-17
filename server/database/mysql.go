@@ -111,7 +111,11 @@ func (mySqlClient *MySqlClient) GetUrlRecordById(ctx context.Context, id string)
 		QueryRow("SELECT * FROM Urls where Id = ?", id).
 		Scan(&entry.CreatedAt, &entry.Id, &entry.Link)
 	if err != nil {
-		return nil, err
+		if err.Error() == "sql: no rows in result set" {
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	}
 
 	return &entry, nil
