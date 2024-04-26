@@ -1,4 +1,4 @@
-package types
+package controllers
 
 type ResourceInfo struct {
 	FileName   string `json:"fileName"`

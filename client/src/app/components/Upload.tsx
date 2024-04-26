@@ -3,6 +3,7 @@ import Dropzone from "react-dropzone";
 import { maxFileSize } from "../consts";
 import { getFileUrl, post, serverUrl, uploadFile } from "../utils";
 import "../../globals.css";
+import CopyButton from "./CopyButton";
 
 export default function Upload() {
   const [uploading, setUploading] = useState(false);
@@ -31,7 +32,7 @@ export default function Upload() {
       "Release to upload"
     ) : (
       <div className="column-center">
-        Drag here or click to upload
+        Drag a file here or click to upload
         <br />
         <div className="small-text">Max file size: {maxFileSize / 1e6}MB</div>
       </div>
@@ -51,7 +52,7 @@ export default function Upload() {
           <div
             {...getRootProps()}
             className="drop-zone column-center"
-            style={{ borderColor: isDragActive ? "rgb(25, 118, 210)" : "" }}
+            style={{ borderColor: isDragActive ? "rgb(100, 160, 220)" : "" }}
           >
             {renderLabel(isDragActive)}
           </div>
@@ -61,11 +62,16 @@ export default function Upload() {
         <div className="uploaded-list">
           Your uploaded file(s)
           <ul>
-            {uploadedFileKeys.map((key) => (
-              <li key={key}>
-                {fileUrlPrefix}/{key}
-              </li>
-            ))}
+            {uploadedFileKeys.map((key) => {
+              const url = `${fileUrlPrefix}/${key}`;
+
+              return (
+                <li key={key}>
+                  {url}
+                  <CopyButton text={url} />
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

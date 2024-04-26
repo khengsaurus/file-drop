@@ -34,28 +34,29 @@ func NewLruCache(
 	return lruCache
 }
 
+// Returns the newly added or updated *list.Element
 func (c *LruCache) Put(key string, value string) *list.Element {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	var toDelete *list.Element
 	if item, exists := c.items[key]; exists {
 		item.data = value
-		c.items[key] = item
 		c.queue.MoveToFront(item.keyPtr)
+		return item.keyPtr
 	} else {
-		if c.capacity == len(c.items) {
+		if len(c.items) == c.capacity {
 			toDelete := c.queue.Back()
 			c.queue.Remove(toDelete)
 			delete(c.items, toDelete.Value.(string))
 		}
-		c.items[key] = &node{
+		ele := &node{
 			data:      value,
 			keyPtr:    c.queue.PushFront(key),
 			createdAt: time.Now(),
 		}
+		c.items[key] = ele
+		return ele.keyPtr
 	}
-	return toDelete
 }
 
 func (c *LruCache) Get(key string) string {

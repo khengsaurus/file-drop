@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
@@ -34,7 +33,7 @@ func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Json200(&types.ResourceInfo{Url: url, Key: key}, w)
+	Json200(&ResourceInfo{Url: url, Key: key}, w)
 }
 
 func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
@@ -48,5 +47,5 @@ func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Json200(&types.ResourceInfo{Url: url}, w)
+	Json200(&ResourceInfo{Url: url}, w)
 }

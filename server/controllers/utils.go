@@ -13,9 +13,13 @@ import (
 
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
 )
+
+func Ping(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Success"))
+}
 
 func BuildRedisValue(fileName, fileKey, fileUrl string) consts.RedisResourceValue {
 	return consts.RedisResourceValue(fmt.Sprintf(
@@ -30,7 +34,7 @@ func BuildRedisValue(fileName, fileKey, fileUrl string) consts.RedisResourceValu
 	))
 }
 
-func ParseRedisValue(resourceValue consts.RedisResourceValue) (*types.ResourceInfo, error) {
+func ParseRedisValue(resourceValue consts.RedisResourceValue) (*ResourceInfo, error) {
 	fullString := string(resourceValue)
 	values := strings.Split(fullString, consts.RedisValDelim)
 
@@ -43,7 +47,7 @@ func ParseRedisValue(resourceValue consts.RedisResourceValue) (*types.ResourceIn
 		return nil, fmt.Errorf("failed to parse resource information")
 	}
 
-	return &types.ResourceInfo{
+	return &ResourceInfo{
 		FileName:   values[0],
 		Key:        values[1],
 		UploadedAt: uploadedAt,

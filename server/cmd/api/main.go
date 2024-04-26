@@ -38,7 +38,7 @@ func main() {
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
-	router.HandleFunc("/ping", ping)
+	router.HandleFunc("/ping", controllers.Ping)
 
 	router.Route("/api", func(r chi.Router) {
 		controllers.ApiRouter(r)
@@ -48,9 +48,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func ping(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Success"))
 }

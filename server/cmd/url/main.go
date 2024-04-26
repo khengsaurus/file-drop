@@ -34,7 +34,7 @@ func main() {
 	router.Use(middlewares.WithContext(consts.RedisCacheKey, redisCache))
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 
-	router.HandleFunc("/ping", ping)
+	router.HandleFunc("/ping", controllers.Ping)
 
 	router.Route("/url", func(r chi.Router) {
 		r.Get("/{url_key}", controllers.RedirectToUrl)
@@ -44,9 +44,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func ping(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Success"))
 }

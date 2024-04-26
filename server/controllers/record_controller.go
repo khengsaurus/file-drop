@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/types"
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
@@ -46,7 +45,7 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("-> SaveResourceInfoToRedis")
 
-	var p types.ResourceInfo
+	var p ResourceInfo
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -77,7 +76,7 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Json200(&types.ResourceInfo{Key: shortestKey}, w)
+	Json200(&ResourceInfo{Key: shortestKey}, w)
 }
 
 func SaveUrl(w http.ResponseWriter, r *http.Request) {

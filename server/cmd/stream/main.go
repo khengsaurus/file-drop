@@ -34,11 +34,11 @@ func main() {
 	router.Use(middlewares.WithContext(consts.RedisClientKey, redisClient))
 	router.Use(middlewares.WithContext(consts.S3ClientKey, s3Client))
 
-	router.HandleFunc("/ping", ping)
+	router.HandleFunc("/ping", controllers.Ping)
 
 	router.Route("/stream", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			rateLimiter := utils.NewRateLimiter(30, 2*time.Minute, 3*time.Minute, true)
+			rateLimiter := utils.NewRateLimiter(20, 2*time.Minute, 3*time.Minute, true)
 			r.Use(rateLimiter.Handle)
 			r.Get("/{file_key}", controllers.StreamResource)
 		})
@@ -48,9 +48,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func ping(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Success"))
 }

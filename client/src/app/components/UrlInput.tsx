@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../components";
 import { getUrlUrl, isValidUrl, post, serverUrl } from "../utils";
+import CopyButton from "./CopyButton";
 
 export default function UrlInput() {
   const [link, setLink] = useState("");
@@ -47,11 +48,16 @@ export default function UrlInput() {
         <div className="uploaded-list">
           Your shortened URL(s)
           <ul>
-            {uploadedUrlKeys.map((key) => (
-              <li key={key}>
-                {fileUrlPrefix}/{key}
-              </li>
-            ))}
+            {uploadedUrlKeys.map((key) => {
+              const url = `${fileUrlPrefix}/${key}`;
+
+              return (
+                <li key={key}>
+                  {url}
+                  <CopyButton text={url} />
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

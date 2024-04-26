@@ -21,7 +21,7 @@ export default function Home() {
     <main>
       <Upload />
       <UrlInput />
-      <div className="home-info">Links will have a TTL of 1 day</div>
+      <div className="home-info">Links will be available for 1 day</div>
     </main>
   );
 }

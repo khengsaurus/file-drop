@@ -16,24 +16,24 @@ type client struct {
 }
 
 type RateLimiter struct {
-	rate    int
-	lock    *sync.Mutex
-	clients map[string]*client
-	useIp   bool
+	reqPerMin int
+	lock      *sync.Mutex
+	clients   map[string]*client
+	useIp     bool
 }
 
 // Adapted from https://blog.logrocket.com/rate-limiting-go-application/#token-bucket-algorithm
 func NewRateLimiter(
-	rate int, // requests per minute
+	reqPerMin int, // requests per minute
 	clientTtl time.Duration,
 	clearInterval time.Duration,
 	useIp bool,
 ) RateLimiter {
 	rateLimiter := RateLimiter{
-		rate:    rate,
-		lock:    &sync.Mutex{},
-		clients: make(map[string]*client),
-		useIp:   useIp,
+		reqPerMin: reqPerMin,
+		lock:      &sync.Mutex{},
+		clients:   make(map[string]*client),
+		useIp:     useIp,
 	}
 	go rateLimiter.SetClearInterval(clientTtl, clearInterval)
 	return rateLimiter
@@ -64,8 +64,8 @@ func (l *RateLimiter) Handle(next http.Handler) http.Handler {
 		defer l.lock.Unlock()
 
 		if _, found := l.clients[rateKey]; !found {
-			limit := rate.Limit(float64(l.rate) / 60)
-			l.clients[rateKey] = &client{limiter: rate.NewLimiter(limit, l.rate)}
+			limit := rate.Limit(float64(l.reqPerMin) / 60)
+			l.clients[rateKey] = &client{limiter: rate.NewLimiter(limit, l.reqPerMin)}
 		}
 		l.clients[rateKey].lastSeen = time.Now()
 

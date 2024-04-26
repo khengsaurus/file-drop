@@ -68,14 +68,6 @@ main {
   min-height: 480px;
 }
 
-.upload {
-  width: clamp(400px, 40%, 800px);
-
-  .arco-upload-trigger-drag-text {
-    display: none;
-  }
-}
-
 .column-center {
   display: flex;
   flex-direction: column;
@@ -89,7 +81,7 @@ main {
   justify-content: center;
   align-items: baseline;
   height: 30px;
-  width: clamp(400px, 40%, 800px);
+  width: clamp(280px, 40%, 800px);
   margin-top: 16px;
 
   input {
@@ -102,7 +94,7 @@ main {
 
 .drop-zone {
   height: 160px;
-  width: clamp(400px, 40%, 800px);
+  width: clamp(280px, 40%, 800px);
   border: 3px dashed rgb(20, 75, 130);
   border-radius: 4px;
   transition: 300ms;
@@ -110,7 +102,7 @@ main {
 
 .drop-zone:hover {
   cursor: pointer;
-  border-color: rgb(20, 110, 180);
+  border-color: rgb(25, 118, 210);
 }
 
 .uploaded-list {
@@ -124,6 +116,10 @@ main {
 
   li {
     margin-top: 6px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -136,4 +132,20 @@ main {
 .small-text {
   font-size: 14px;
   margin-top: 8px;
+}
+
+.copy-button {
+  height: 24px;
+  width: 24px;
+  display: block;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+
+  svg {
+    height: 16px;
+    width: 16px;
+    transition: 300ms;
+  }
 }
