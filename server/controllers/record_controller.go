@@ -104,7 +104,7 @@ func SaveUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = mySqlClient.WriteUrlRecord(ctx, shortestKey, p.Url)
+	_, err = mySqlClient.WriteUrlRecord(ctx, shortestKey, p.Url, utils.GetRecordExpiryRef(r))
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

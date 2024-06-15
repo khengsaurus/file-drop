@@ -121,8 +121,9 @@ func (mySqlClient *MySqlClient) GetUrlRecordById(ctx context.Context, id string)
 	return &entry, nil
 }
 
-func (mySqlClient *MySqlClient) WriteUrlRecord(ctx context.Context, id string, url string) (*UrlEntry, error) {
-	createdAt := time.Now().Unix()
+func (mySqlClient *MySqlClient) WriteUrlRecord(
+	ctx context.Context, id string, url string, createdAt int64,
+) (*UrlEntry, error) {
 	query := fmt.Sprintf("INSERT INTO Urls(CreatedAt, Id, Link) VALUES(%d, '%s', '%s');", createdAt, id, url)
 	insert, err := mySqlClient.instance.Query(query)
 	if err != nil {

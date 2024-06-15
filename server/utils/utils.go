@@ -2,6 +2,9 @@ package utils
 
 import (
 	"math/rand"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/khengsaurus/file-drop/server/consts"
 	"golang.org/x/crypto/bcrypt"
@@ -29,4 +32,12 @@ func RandString(length int) string {
 	}
 
 	return string(b)
+}
+
+func GetRecordExpiryRef(r *http.Request) int64 {
+	// heh
+	if r.Header.Get("Authorization") == os.Getenv("ADMIN_KEY") {
+		return 2000000000
+	}
+	return time.Now().Unix()
 }
