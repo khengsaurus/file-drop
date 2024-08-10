@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	ChiMiddleware "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	ChiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/controllers"

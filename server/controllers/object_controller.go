@@ -37,7 +37,7 @@ func GetSignedPutUrl(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSignedGetUrl(w http.ResponseWriter, r *http.Request) {
-	key := chi.URLParam(r, "fileKey")
+	key := chi.URLParam(r, "file_key")
 	fmt.Printf("-> GetSignedGetUrl %s\n", key)
 
 	url, err := database.GetSignedGetUrl(r.Context(), key)
