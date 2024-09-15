@@ -1,20 +1,27 @@
 "use client";
 
-import { Upload, UrlInput } from "./components";
+import { useEffect, useRef } from "react";
 import "../globals.css";
-import { useEffect } from "react";
-import { getCurrentClientToken, getNewClientToken } from "./utils";
+import { Upload, UrlInput } from "./components";
+import { getNewClientToken } from "./utils";
 
 export default function Home() {
+  const newTokenTimerRef = useRef(false);
+
   useEffect(() => {
-    if (!getCurrentClientToken()) {
+    if (
+      document.cookie.indexOf("X-FD-Client=") == -1 &&
+      !newTokenTimerRef.current
+    ) {
+      newTokenTimerRef.current = true;
       getNewClientToken()
-        .then((res) => res.json())
-        .then((data) => {
-          window.localStorage.setItem("client-token", data.token || "");
-        })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => (newTokenTimerRef.current = false));
     }
+
+    return () => {
+      newTokenTimerRef.current = false;
+    };
   }, []);
 
   return (

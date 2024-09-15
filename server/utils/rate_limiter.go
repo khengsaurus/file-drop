@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/khengsaurus/file-drop/server/consts"
 	"golang.org/x/time/rate"
 )
 
@@ -51,14 +51,13 @@ func (l *RateLimiter) Handle(next http.Handler) http.Handler {
 				rateKey = ip
 			}
 		} else {
-			rateKey = r.Header.Get("X-Client-Token")
+			clientToken, _ := r.Cookie(consts.ClientCookieName)
+			rateKey = clientToken.Value
 			if !CheckValidToken(rateKey) {
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 		}
-
-		fmt.Printf("-> request from %s\n", rateKey)
 
 		l.lock.Lock()
 		defer l.lock.Unlock()

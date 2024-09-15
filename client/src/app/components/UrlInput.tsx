@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../../components";
-import { getUrlUrl, isValidUrl, post, serverUrl } from "../utils";
+import { getUrlUrl, isValidUrl, post } from "../utils";
 import CopyButton from "./CopyButton";
 
 export default function UrlInput() {
@@ -66,5 +66,5 @@ export default function UrlInput() {
 }
 
 async function postUrl(url: string) {
-  return post(`${serverUrl}/api/url`, { url });
+  return post(`${process.env.API_BASE_PATH}/url`, { url });
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { maxFileSize } from "../consts";
-import { getFileUrl, post, serverUrl, uploadFile } from "../utils";
+import { getFileUrl, post, uploadFile } from "../utils";
 import "../../globals.css";
 import CopyButton from "./CopyButton";
 
@@ -84,7 +84,7 @@ async function handleFileUpload(file: File): Promise<string> {
   const { size, type } = file;
   if (size >= maxFileSize) throw new Error();
 
-  return post(`${serverUrl}/api/object`, { size, type })
+  return post(`${process.env.API_BASE_PATH}/object`, { size, type })
     .then(async (res) => {
       const { key, url } = (await res.json()) || {};
       if (!key || !url || res.status !== 200) {
@@ -103,5 +103,5 @@ async function handleFileUpload(file: File): Promise<string> {
 }
 
 async function postDownloadRecord(fileName: string, key: string) {
-  return post(`${serverUrl}/api/object-record`, { fileName, key });
+  return post(`${process.env.API_BASE_PATH}/object-record`, { fileName, key });
 }

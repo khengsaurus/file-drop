@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
-	"github.com/khengsaurus/file-drop/server/utils"
 )
 
 func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +45,12 @@ func GetResourceInfoFromRedis(w http.ResponseWriter, r *http.Request) {
 func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("-> SaveResourceInfoToRedis")
 
+	clientToken, _ := r.Cookie(consts.ClientCookieName)
+	if clientToken == nil || clientToken.Value == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	var p ResourceInfo
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
@@ -60,7 +66,14 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shortestKey := redisClient.GetShortestNewKey(ctx, p.Key)
+	placeholderValue := redisClient.GetValue(ctx, p.Key)
+	expectedPlaceholder := fmt.Sprintf("%s_%s", consts.RedisValPlaceholderPrefix, clientToken.Value)
+	if placeholderValue != expectedPlaceholder {
+		fmt.Println(fmt.Errorf("write to invalid redis-key"))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	getUrl, err := database.GetSignedGetUrl(ctx, p.Key)
 	if err != nil {
 		fmt.Println(err)
@@ -69,58 +82,12 @@ func SaveResourceInfoToRedis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resourceValue := BuildRedisValue(p.FileName, p.Key, getUrl)
-	err = redisClient.SetValue(ctx, shortestKey, string(resourceValue), 24*time.Hour)
+	err = redisClient.SetValue(ctx, p.Key, string(resourceValue), 24*time.Hour)
 	if err != nil {
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	Json200(&ResourceInfo{Key: shortestKey}, w)
-}
-
-func SaveUrl(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("-> SaveUrl")
-
-	var p UrlInfo
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	ctx := r.Context()
-	mySqlClient, err := database.GetMySqlClient(ctx)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	shortestKey, err := mySqlClient.GetShortestNewKey(ctx, utils.RandString(8))
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	_, err = mySqlClient.WriteUrlRecord(ctx, shortestKey, p.Url, utils.GetRecordExpiryRef(r))
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = SaveUrlToRedis(ctx, shortestKey, p.Url)
-	if err != nil {
-		fmt.Println(err)
-	}
-	Json200(&UrlInfo{Url: p.Url, Key: shortestKey}, w)
-}
-
-// --------------- types ---------------
-
-type UrlInfo struct {
-	Url string `json:"url"`
-	Key string `json:"key"`
+	Json200(&ResourceInfo{Key: p.Key}, w)
 }
