@@ -4,7 +4,7 @@ import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../../../components";
-import { get, serverUrl } from "../../utils";
+import { get } from "../../utils";
 
 interface FilePageProps {
   params: { fileKey: string };
@@ -16,7 +16,7 @@ export default function FilePage({ params }: FilePageProps) {
   const router = useRouter();
 
   useEffect(() => {
-    get(`${serverUrl}/api/object-record/${fileKey}`)
+    get(`${process.env.API_BASE_PATH}/object-record/${fileKey}`)
       .then((res) => {
         if (res?.status === 404) {
           router.push("/");

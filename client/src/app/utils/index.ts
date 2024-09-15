@@ -1,17 +1,10 @@
-import { serverUrl } from "./consts";
-
 const defaultJsonHeaders = {
   Accept: "application/json",
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
-export function getCurrentClientToken() {
-  if (typeof window === "undefined") return "";
-  return window.localStorage.getItem("client-token") || "";
-}
-
 export function getNewClientToken() {
-  return fetch(`${serverUrl}/api/token`);
+  return fetch(`${process.env.API_BASE_PATH}/token`);
 }
 
 export function get(
@@ -22,21 +15,17 @@ export function get(
   const urlWithParams = params ? `${url}?${new URLSearchParams(params)}` : url;
   return fetch(urlWithParams, {
     method: "GET",
-    headers: {
-      ...headers,
-      "X-Client-Token": getCurrentClientToken(),
-    },
+    headers,
+    credentials: "include"
   });
 }
 
 export function post(url: string, data = {}) {
   return fetch(url, {
     method: "POST",
-    headers: {
-      ...defaultJsonHeaders,
-      "X-Client-Token": getCurrentClientToken(),
-    },
-    body: JSON.stringify(data),
+    headers: defaultJsonHeaders,
+    credentials: "include",
+    body: JSON.stringify(data)
   });
 }
 
@@ -49,10 +38,10 @@ export function uploadFile(
     method: "PUT",
     headers: {
       "Content-Type": file.type,
-      "Content-Length": String(file.size),
+      "Content-Length": String(file.size)
     },
     body: file,
-    signal: abortSignal?.signal,
+    signal: abortSignal?.signal
   });
 }
 
@@ -85,5 +74,3 @@ export function isValidUrl(urlString: string) {
   ); // validate fragment locator
   return !!urlPattern.test(urlString);
 }
-
-export * from "./consts";

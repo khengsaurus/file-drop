@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -85,26 +86,6 @@ func (mySqlClient *MySqlClient) CheckExists(ctx context.Context, id string) (boo
 	return exists, nil
 }
 
-func (mySqlClient *MySqlClient) GetShortestNewKey(
-	ctx context.Context,
-	key string,
-) (string, error) {
-	shortenedKey := ""
-
-	for i := 3; i <= len(key)+1; i++ {
-		shortenedKey = key[:i]
-		exists, err := mySqlClient.CheckExists(ctx, shortenedKey)
-		if err != nil {
-			return "", err
-		}
-		if !exists {
-			return shortenedKey, nil
-		}
-	}
-
-	return mySqlClient.GetShortestNewKey(ctx, utils.RandString(8))
-}
-
 func (mySqlClient *MySqlClient) GetUrlRecordById(ctx context.Context, id string) (*UrlEntry, error) {
 	var entry UrlEntry
 	err := mySqlClient.instance.
@@ -121,16 +102,22 @@ func (mySqlClient *MySqlClient) GetUrlRecordById(ctx context.Context, id string)
 	return &entry, nil
 }
 
-func (mySqlClient *MySqlClient) WriteUrlRecord(
-	ctx context.Context, id string, url string, createdAt int64,
-) (*UrlEntry, error) {
+func (mySqlClient *MySqlClient) WriteUrlRecord(ctx context.Context, url string, createdAt int64, attempt int) (*UrlEntry, error) {
+	if attempt > consts.WriteTries {
+		return nil, fmt.Errorf("failed to write url record after %d tries", consts.WriteTries)
+	}
+	id := utils.RandString(6)
 	query := fmt.Sprintf("INSERT INTO Urls(CreatedAt, Id, Link) VALUES(%d, '%s', '%s');", createdAt, id, url)
 	insert, err := mySqlClient.instance.Query(query)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			return mySqlClient.WriteUrlRecord(ctx, url, createdAt, attempt+1)
+		} else {
+			return nil, err
+		}
 	}
-	defer insert.Close()
 
+	defer insert.Close()
 	return &UrlEntry{CreatedAt: int(createdAt), Id: id, Link: url}, nil
 }
 

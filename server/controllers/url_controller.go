@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -8,7 +9,45 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/khengsaurus/file-drop/server/consts"
 	"github.com/khengsaurus/file-drop/server/database"
+	"github.com/khengsaurus/file-drop/server/utils"
 )
+
+type urlInfo struct {
+	Url string `json:"url"`
+	Key string `json:"key"`
+}
+
+func SaveUrl(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("-> SaveUrl")
+
+	var p urlInfo
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	ctx := r.Context()
+	mySqlClient, err := database.GetMySqlClient(ctx)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	entry, err := mySqlClient.WriteUrlRecord(ctx, p.Url, utils.GetRecordExpiryRef(r), 0)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = SaveUrlToRedis(ctx, entry.Id, p.Url)
+	if err != nil {
+		fmt.Println(err)
+	}
+	Json200(&urlInfo{Url: p.Url, Key: entry.Id}, w)
+}
 
 func RedirectToUrl(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "url_key")

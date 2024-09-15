@@ -48,7 +48,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			rateLimiter := utils.NewRateLimiter(20, 2*time.Minute, 3*time.Minute, true)
 			r.Use(rateLimiter.Handle)
-			r.Get("/{file_key}", controllers.StreamResource)
+			r.Get("/{file_key}", controllers.StreamResourceForView)
 		})
 	})
 

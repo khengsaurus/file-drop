@@ -1,29 +1,42 @@
 #!/bin/bash
 
+COMMIT_HASH=$(git rev-parse --short HEAD)
+
+FULL_APP_NAME="fd-service"
+FULL_IMAGE_NAME="$FULL_APP_NAME:$COMMIT_HASH"
+if [[ "$(docker images -q $FULL_IMAGE_NAME 2> /dev/null)" == "" ]]; 
+  then docker build . -t $FULL_IMAGE_NAME --build-arg service=all
+fi
+
+docker run --name $FULL_APP_NAME-API -p "8094:8080" -d $FULL_IMAGE_NAME
+docker run --name $FULL_APP_NAME-STR -p "8095:8080" -d $FULL_IMAGE_NAME
+docker run --name $FULL_APP_NAME-URL-1 -p "8096:8080" -d $FULL_IMAGE_NAME
+docker run --name $FULL_APP_NAME-URL-1 -p "8097:8080" -d $FULL_IMAGE_NAME
+
 # Build app image for API service if not exists
-APP_API="fd-service-api"
-TAG_API="1_api"
-if [[ "$(docker images -q $APP_API:$TAG_API 2> /dev/null)" == "" ]]; 
-  then docker build . -t $APP_API:$TAG_API --build-arg service=api
-fi
+# API_APP_NAME="fd-service-api"
+# API_IMAGE_NAME="$API_APP_NAME:$COMMIT_HASH"
+# if [[ "$(docker images -q $API_IMAGE_NAME 2> /dev/null)" == "" ]]; 
+#   then docker build . -t $API_IMAGE_NAME --build-arg service=api
+# fi
 
-docker run --name $APP_API-1 -p "8094:8080" -d $APP_API:$TAG_API
+# docker run --name $API_APP_NAME-1 -p "8094:8080" -d $API_IMAGE_NAME
 
-# Build app image for Stream service if not exists
-APP_STR="fd-service-stream"
-TAG_STR="1_str"
-if [[ "$(docker images -q $APP_STR:$TAG_STR 2> /dev/null)" == "" ]]; 
-  then docker build . -t $APP_STR:$TAG_STR --build-arg service=stream
-fi
+# # Build app image for Stream service if not exists
+# STR_APP_NAME="fd-service-str"
+# STR_IMAGE_NAME="$STR_APP_NAME:$COMMIT_HASH"
+# if [[ "$(docker images -q $STR_IMAGE_NAME 2> /dev/null)" == "" ]]; 
+#   then docker build . -t $STR_IMAGE_NAME --build-arg service=stream
+# fi
 
-docker run --name $APP_STR-1 -p "8095:8080" -d $APP_STR:$TAG_STR
+# docker run --name $STR_APP_NAME-1 -p "8095:8080" -d $STR_IMAGE_NAME
 
-# Build app image for URL service if not exists
-APP_URL="fd-service-url"
-TAG_URL="1_url"
-if [[ "$(docker images -q $APP_URL:$TAG_URL 2> /dev/null)" == "" ]];
-  then docker build . -t $APP_URL:$TAG_URL --build-arg service=url
-fi
+# # Build app image for URL service if not exists
+# URL_APP_NAME="fd-service-url"
+# URL_IMAGE_NAME="$URL_APP_NAME:$COMMIT_HASH"
+# if [[ "$(docker images -q $URL_IMAGE_NAME 2> /dev/null)" == "" ]];
+#   then docker build . -t $URL_IMAGE_NAME --build-arg service=url
+# fi
 
-docker run --name $APP_URL-1 -p "8096:8080" -d $APP_URL:$TAG_URL
-docker run --name $APP_URL-2 -p "8097:8080" -d $APP_URL:$TAG_URL
+# docker run --name $URL_APP_NAME-1 -p "8096:8080" -d $URL_IMAGE_NAME
+# docker run --name $URL_APP_NAME-2 -p "8097:8080" -d $URL_IMAGE_NAME

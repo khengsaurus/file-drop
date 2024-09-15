@@ -35,8 +35,8 @@ func RandString(length int) string {
 }
 
 func GetRecordExpiryRef(r *http.Request) int64 {
-	// heh
-	if r.Header.Get("Authorization") == os.Getenv("ADMIN_KEY") {
+	bearer := r.Header.Get("Authorization")
+	if bearer != "" && bearer == os.Getenv("ADMIN_KEY") {
 		return 2000000000
 	}
 	return time.Now().Unix()

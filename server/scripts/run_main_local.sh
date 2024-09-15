@@ -1,1 +1,1 @@
-LOCAL=true go run main.go
+LOCAL=true go run cmd/all/main.go
