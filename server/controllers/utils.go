@@ -114,20 +114,18 @@ func Redirect404(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, client404, http.StatusFound)
 }
 
+type htmlPageImg struct {
+	Title string
+	Src   string
+}
+
 func WriteImageHTML(title string, src string, w http.ResponseWriter) error {
 	tmpl, err := template.New("imagePage").Parse(utils.ImagePageHtml)
 	if err != nil {
 		return err
 	}
 
-	page := HtmlPageImg{Title: title, Src: src}
+	page := htmlPageImg{Title: title, Src: src}
 
 	return tmpl.Execute(w, page)
-}
-
-// --------------- types ---------------
-
-type HtmlPageImg struct {
-	Title string
-	Src   string
 }
