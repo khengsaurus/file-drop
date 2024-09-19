@@ -9,6 +9,10 @@ import (
 	"github.com/khengsaurus/file-drop/server/utils"
 )
 
+type tokenInfo struct {
+	Token string `json:"token"`
+}
+
 func GetToken(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("-> GetToken")
 
@@ -26,11 +30,5 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &cookie)
-	Json200(&TokenInfo{Token: token}, w)
-}
-
-// --------------- types ---------------
-
-type TokenInfo struct {
-	Token string `json:"token"`
+	Json200(&tokenInfo{Token: token}, w)
 }

@@ -1,3 +1,73 @@
+### AWS S3
+
+#### Bucket policy
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3 public GET",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::file-drop-1/*"
+    }
+  ]
+}
+```
+
+#### CORS policy
+
+```json
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "HEAD", "POST", "PUT"],
+    "AllowedOrigins": ["https://ice-milo.com"],
+    "ExposeHeaders": []
+  }
+]
+```
+
+#### Lifecycle rule
+
+- Rule config: rule scope - Apply to all objects in the bucket
+- Lifecycle rule actions:
+  - Expire current versions of objects
+  - Permanently delete noncurrent versions of objects
+  - Delete expired object delete markers or incomplete multipart uploads
+- Expire current versions: 1 day after object creation
+- Permanently delete noncurrent versions of objects: 1 day after objects become noncurrent
+- Delete expired object delete markers or incomplete multipart uploads: Delete incomplete multipart uploads, 1 day
+
+#### IAM policy
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::file-drop-1/*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": "arn:aws:s3:::file-drop-1"
+    }
+  ]
+}
+```
+
 ### Running services with Docker
 
 Requirements: [LS CLI](https://github.com/localstack/awscli-local), Docker Compose, Python 3

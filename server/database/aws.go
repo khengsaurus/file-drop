@@ -97,7 +97,8 @@ func GetSignedPutUrl(
 		Bucket: aws.String(os.Getenv("AWS_BUCKET_NAME")),
 		Key:    aws.String(key),
 	})
-	if err == nil || !strings.Contains(err.Error(), "NoSuchKey") {
+	keyUnused := err != nil && strings.Contains(err.Error(), "NoSuchKey")
+	if !keyUnused {
 		// no error - object with key exists in s3
 		return GetSignedPutUrl(ctx, contentType, size, attempt+1, clientToken)
 	}
