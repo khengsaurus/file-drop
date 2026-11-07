@@ -11,7 +11,7 @@ fi
 docker run --name $FULL_APP_NAME-API -p "8094:8080" -d $FULL_IMAGE_NAME
 docker run --name $FULL_APP_NAME-STR -p "8095:8080" -d $FULL_IMAGE_NAME
 docker run --name $FULL_APP_NAME-URL-1 -p "8096:8080" -d $FULL_IMAGE_NAME
-docker run --name $FULL_APP_NAME-URL-1 -p "8097:8080" -d $FULL_IMAGE_NAME
+docker run --name $FULL_APP_NAME-URL-2 -p "8097:8080" -d $FULL_IMAGE_NAME
 
 # Build app image for API service if not exists
 # API_APP_NAME="fd-service-api"
